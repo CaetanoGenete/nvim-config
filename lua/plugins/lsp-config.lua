@@ -9,45 +9,48 @@ return {
 		},
 	},
 	{
+		"neovim/nvim-lspconfig",
+		config = function()
+			-- Add rounded border to hover window
+			vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
+				border = "rounded",
+			})
+		end,
+	},
+	{
 		"williamboman/mason-lspconfig.nvim",
+		dependencies = {
+			"hrsh7th/cmp-nvim-lsp",
+			-- ? setting nvim-lspconfig and mason as dependencies here to ensure correct setup order.
+			"neovim/nvim-lspconfig",
+			"williamboman/mason.nvim",
+		},
 		opts = {
 			ensure_installed = {
 				"lua_ls",
 			},
 		},
-	},
-	{
-		"neovim/nvim-lspconfig",
-		dependencies = {
-			"hrsh7th/cmp-nvim-lsp",
-		},
 		config = function()
 			local lspconfig = require("lspconfig")
-			-- Add rounded border to hover window
-			vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
-				border = "rounded",
-			})
 
-			local capabilities = require("cmp_nvim_lsp").default_capabilities()
-			lspconfig.lua_ls.setup({
-				capabilities = capabilities,
-			})
-			lspconfig.clangd.setup({ capabilities = capabilities })
-			lspconfig.cmake.setup({ capabilities = capabilities })
+			-- By default, use capabilties as defined by cmp_nvim_lsp
+			lspconfig.util.default_config = vim.tbl_extend(
+				"force",
+				lspconfig.util.default_config,
+				{ capabilities = require("cmp_nvim_lsp").default_capabilities() }
+			)
+
+			-- LSP setup here
+			lspconfig.lua_ls.setup({})
+			lspconfig.clangd.setup({})
+			lspconfig.cmake.setup({})
 			lspconfig.gopls.setup({
-				capabilities = capabilities,
 				settings = {
 					gopls = {
 						gofumpt = true,
 					},
 				},
 			})
-
-			-- key bindings
-			vim.keymap.set("n", "<C-k><C-i>", vim.lsp.buf.hover)
-			vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action)
-			vim.keymap.set("n", "<leader>cf", vim.lsp.buf.format)
-			vim.keymap.set("n", "<leader>r", vim.lsp.buf.rename)
 		end,
 	},
 }
