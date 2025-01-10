@@ -6,10 +6,26 @@ return {
 		},
 		config = function()
 			local cmp = require("cmp")
+			local luasnip = require("luasnip")
+
+			default_opts = { silent = true, noremap = true }
+
+			vim.keymap.set({ "i" }, "<C-K>", function()
+				luasnip.expand()
+			end, default_opts)
+
+			vim.keymap.set({ "i", "s" }, "<C-L>", function()
+				luasnip.jump(1)
+			end, default_opts)
+
+			vim.keymap.set({ "i", "s" }, "<C-J>", function()
+				luasnip.jump(-1)
+			end, default_opts)
+
 			cmp.setup({
 				snippet = {
 					expand = function(args)
-						require("luasnip").lsp_expand(args.body)
+						luasnip.lsp_expand(args.body)
 					end,
 				},
 				window = {
@@ -24,6 +40,10 @@ return {
 					["<CR>"] = cmp.mapping.confirm({ select = true }),
 				}),
 				sources = cmp.config.sources({
+					{
+						name = "lazydev",
+						group_index = 0, -- set group index to 0 to skip loading LuaLS completions
+					},
 					{ name = "nvim_lsp" },
 					{ name = "luasnip" },
 				}, {
