@@ -2,12 +2,9 @@
 
 local M = {}
 
--- The language servers to be setup
+-- Mason settings ensure lua_ls is installed.
 M.language_servers = {
 	"lua_ls",
-	"clangd",
-	"cmake",
-	"gopls",
 }
 
 return M

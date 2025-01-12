@@ -8,11 +8,9 @@ return {
 			local cmp = require("cmp")
 			local luasnip = require("luasnip")
 
-			default_opts = { silent = true, noremap = true }
+			local default_opts = { silent = true, noremap = true }
 
-			vim.keymap.set({ "i" }, "<C-K>", function()
-				luasnip.expand()
-			end, default_opts)
+			vim.keymap.set({ "i" }, "<C-K>", luasnip.expand, default_opts)
 
 			vim.keymap.set({ "i", "s" }, "<C-L>", function()
 				luasnip.jump(1)

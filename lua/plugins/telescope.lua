@@ -38,6 +38,18 @@ return {
 				builtin.lsp_document_symbols,
 				{ desc = "Lists all symbols of the current document." }
 			)
+			vim.keymap.set(
+				"n",
+				"<leader>ws",
+				builtin.lsp_workspace_symbols,
+				{ desc = "Lists all symbols of the current workspace." }
+			)
+			vim.keymap.set(
+				"n",
+				"<leader>vd",
+				builtin.diagnostics,
+				{ desc = "List all diagnostics (info and error messages)" }
+			)
 		end,
 	},
 }

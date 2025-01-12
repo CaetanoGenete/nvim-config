@@ -1,3 +1,12 @@
+-- Loads mason plugins and sets up LSP configuration for each enabled language server
+--
+-- To enable a language server:
+-- - In `user.config` add the name of the lsp to the `language_servers` table
+-- - (Optional) In the `user/lsp` directory create a lua module with the same name as the language server (e.g
+--   clangd.lua) and return a table of all the settings to be passed to its `setup` function.
+
+local default_user_config = require("user-defaults.config")
+
 return {
 	{
 		"williamboman/mason.nvim",
@@ -15,10 +24,7 @@ return {
 			"williamboman/mason.nvim",
 		},
 		opts = {
-			ensure_installed = {
-				-- Using lua_ls primarily for easy nvim configuration
-				"lua_ls",
-			},
+			ensure_installed = default_user_config.language_servers,
 		},
 		config = function()
 			local lspconfig = require("lspconfig")
@@ -29,13 +35,21 @@ return {
 				{ capabilities = require("cmp_nvim_lsp").default_capabilities() }
 			)
 
-			local configured_lsps = require("user.config").language_servers
-			for _, lsp_name in pairs(configured_lsps) do
-				local ok, lang_settings = pcall(require, "user.lsp." .. lsp_name)
-				if not ok then
-					lang_settings = {}
+			local language_servers =
+				vim.tbl_extend("force", default_user_config.language_servers, require("user.config").language_servers)
+
+			for _, lsp_name in pairs(language_servers) do
+				local user_ok, user_lang_settings = pcall(require, "user.lsp." .. lsp_name)
+				if not user_ok then
+					user_lang_settings = {}
 				end
-				lspconfig[lsp_name].setup(lang_settings)
+
+				local default_ok, default_lang_settings = pcall(require, "user-defaults.lsp" .. lsp_name)
+				if not default_ok then
+					default_lang_settings = {}
+				end
+
+				lspconfig[lsp_name].setup(vim.tbl_extend("force", default_lang_settings, user_lang_settings))
 			end
 		end,
 	},
