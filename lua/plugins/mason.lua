@@ -10,6 +10,7 @@ local default_user_config = require("user-defaults.config")
 return {
 	{
 		"williamboman/mason.nvim",
+		cmd = "Mason",
 		opts = {
 			ui = {
 				border = "rounded",
@@ -18,12 +19,15 @@ return {
 	},
 	{
 		"williamboman/mason-lspconfig.nvim",
+		event = { "BufReadPre", "BufNewFile" },
 		dependencies = {
 			"hrsh7th/cmp-nvim-lsp",
 			"neovim/nvim-lspconfig",
 			"williamboman/mason.nvim",
 		},
 		opts = {
+			-- Ensures all language servers mentioned in the default config are installed. User defined language_servers
+			-- , however, must already exist or be manually installed through mason.
 			ensure_installed = default_user_config.language_servers,
 		},
 		config = function()

@@ -1,8 +1,9 @@
 ---@meta
+---This module provides default configs for user-settings
 
 local M = {}
 
--- Mason settings ensure lua_ls is installed.
+---@type (string)[]
 M.language_servers = {
 	"lua_ls",
 }
