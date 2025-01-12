@@ -34,7 +34,7 @@ return {
 		)
 		vim.keymap.set(
 			"n",
-			"<leader>ds",
+			"<leader>ls",
 			builtin.lsp_document_symbols,
 			{ desc = "Lists all symbols of the current document." }
 		)

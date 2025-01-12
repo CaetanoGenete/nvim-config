@@ -4,7 +4,7 @@ return {
 	version = "v2.*",
 	event = "VeryLazy",
 	build = function()
-		if vim.fn.executable("make") == true then
+		if vim.fn.executable("make") then
 			vim.fn.execute("make install_jsregexp")
 		end
 	end,
