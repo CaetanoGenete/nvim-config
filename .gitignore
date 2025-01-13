@@ -1,1 +1,2 @@
-lua/user/
+# User folders are reserved for local configuration
+user/

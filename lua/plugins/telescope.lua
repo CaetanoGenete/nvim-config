@@ -42,13 +42,13 @@ return {
 		)
 		vim.keymap.set(
 			"n",
-			"<leader>ws",
+			"<leader>lws",
 			builtin.lsp_workspace_symbols,
 			{ desc = "Lists all symbols of the current workspace." }
 		)
 		vim.keymap.set(
 			"n",
-			"<leader>vd",
+			"<leader>ld",
 			builtin.diagnostics,
 			{ desc = "List all diagnostics (info and error messages)" }
 		)

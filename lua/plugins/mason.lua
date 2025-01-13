@@ -5,7 +5,7 @@
 -- - (Optional) In the `user/lsp` directory create a lua module with the same name as the language server (e.g
 --   clangd.lua) and return a table of all the settings to be passed to its `setup` function.
 
-local default_user_config = require("user-defaults.config")
+local default_user_config = require("config.user-defaults.config")
 
 ---@module "lazy"
 ---@type (LazyPluginSpec)[]
@@ -42,7 +42,7 @@ return {
 			)
 
 			local language_servers =
-				vim.tbl_extend("force", default_user_config.language_servers, require("user.config").language_servers)
+				vim.tbl_extend("force", default_user_config.language_servers, require("config.user.config").language_servers)
 
 			for _, lsp_name in pairs(language_servers) do
 				local user_ok, user_lang_settings = pcall(require, "user.lsp." .. lsp_name)
@@ -50,7 +50,7 @@ return {
 					user_lang_settings = {}
 				end
 
-				local default_ok, default_lang_settings = pcall(require, "user-defaults.lsp" .. lsp_name)
+				local default_ok, default_lang_settings = pcall(require, "config.user-defaults.lsp." .. lsp_name)
 				if not default_ok then
 					default_lang_settings = {}
 				end
