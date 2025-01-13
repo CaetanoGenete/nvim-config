@@ -7,6 +7,8 @@
 
 local default_user_config = require("user-defaults.config")
 
+---@module "lazy"
+---@type (LazyPluginSpec)[]
 return {
 	{
 		"williamboman/mason.nvim",

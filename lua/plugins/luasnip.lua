@@ -1,3 +1,5 @@
+---@module "lazy"
+---@type (LazyPluginSpec)[]
 return {
 	{
 		"saadparwaiz1/cmp_luasnip",

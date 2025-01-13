@@ -1,3 +1,5 @@
+---@module "lazy"
+---@type LazyPluginSpec
 return {
 	"danymat/neogen",
 	cmd = "Neogen",

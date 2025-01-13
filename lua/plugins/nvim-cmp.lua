@@ -1,3 +1,5 @@
+---@module "lazy"
+---@type LazyPluginSpec
 return {
 	"hrsh7th/nvim-cmp",
 	event = "InsertEnter",
