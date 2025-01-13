@@ -1,3 +1,3 @@
 return {
-	s("trig", t("loaded!!")),
+	s("today", { extras.partial(os.date, "%Y-%m-%d") }),
 }

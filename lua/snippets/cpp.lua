@@ -6,13 +6,13 @@
 --- - Replace all non alpha-numeric characters with '_'
 ---
 --- @return string
-local function cpp_include_path(_, _)
+local function cpp_include_path()
 	---@type string
 	local workspace = vim.lsp.buf.list_workspace_folders()[1]
 	-- Note: Using buffer path instead of TM_FILEPATH to support previews with nvim-cmp
 	local file_path = vim.api.nvim_buf_get_name(0)
 
-	-- Get path of current buffer, relative to the workspace
+	-- Get path of current buffer, relative to the workspace and strip /include/ from the beggining.
 	local rel_path = string.sub(file_path, #workspace + 1 + #"/include/", #file_path)
 	rel_path = string.upper(rel_path)
 	rel_path = string.gsub(rel_path, "[^A-Z0-9]", "_")
