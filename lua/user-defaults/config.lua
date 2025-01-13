@@ -1,4 +1,3 @@
----@meta
 ---This module provides default configs for user-settings
 
 local M = {}
