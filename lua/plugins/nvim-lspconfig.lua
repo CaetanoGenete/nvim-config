@@ -1,4 +1,4 @@
--- Loads mason plugins and sets up LSP configuration for each enabled language server
+-- Sets up LSP configuration for each enabled language server
 --
 -- To enable a language server:
 -- - In `user.config` add the name of the lsp to the `language_servers` table
@@ -28,6 +28,7 @@ return {
 		-- NOTE: Language servers must be setup **after** mason-lspconfig, hence:
 		config = function(_, opts)
 			require("mason-lspconfig").setup(opts)
+
 			local lspconfig = require("lspconfig")
 			local cmp_nvim = require("cmp_nvim_lsp")
 
