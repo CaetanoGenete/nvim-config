@@ -10,9 +10,10 @@ return {
 		local cmp = require("cmp")
 		local luasnip = require("luasnip")
 
-		---@param fallback function
+		---@param fallback fun(): nil # The fallback behaviour if no visible completion window and no snippet node.
 		local function next(fallback)
 			if cmp.visible() then
+				-- Prefer navigating completion window of jumping between snippet nodes
 				if #cmp.get_entries() == 1 then
 					cmp.confirm({ select = true })
 				else
@@ -25,7 +26,9 @@ return {
 			end
 		end
 
+		---@param fallback fun(): nil # The fallback behaviour if no visible completion window and no snippet node.
 		local function prev(fallback)
+			-- Prefer navigating completion window of jumping between snippet nodes
 			if cmp.visible() then
 				cmp.select_prev_item()
 			elseif luasnip.locally_jumpable(-1) then
@@ -57,7 +60,8 @@ return {
 			sources = cmp.config.sources({
 				{
 					name = "lazydev",
-					group_index = 0, -- set group index to 0 to skip loading LuaLS completions
+					-- set group index to 0 to skip loading LuaLS completions
+					group_index = 0,
 				},
 				{ name = "nvim_lsp" },
 				{ name = "luasnip" },
