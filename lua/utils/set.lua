@@ -1,8 +1,8 @@
 M = {}
 
----@alias set table<any, boolean>
+---@alias set table<any, boolean> A unique list of elements
 
----Accepts a set as argument and returns copy of its elements in a list
+---Accepts a set as argument and returns copy of its elements in a list.
 ---
 ---@param set set
 ---@return any[]

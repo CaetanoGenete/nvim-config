@@ -6,6 +6,7 @@
 --   clangd.lua) and return a table of all the settings to be passed to its `setup` function.
 
 local user_config = require("config.user-defaults.config")
+local log = require("utils.log")
 
 ---@module "lazy"
 ---@type LazyPluginSpec[]
@@ -46,17 +47,26 @@ return {
 
 			for lsp_name, _ in pairs(user_config.language_servers) do
 				if not ignore[lsp_name] then
+					log.fmt_info("Initialising lsp `%s`", lsp_name)
+
 					local default_ok, default_lang_settings = pcall(require, "config.user-defaults.lsp." .. lsp_name)
 					if not default_ok then
+						log.fmt_debug(
+							"Error loading default configs for lsp `%s`, assuming empty config table.",
+							lsp_name
+						)
 						default_lang_settings = {}
 					end
 
 					local user_ok, user_lang_settings = pcall(require, "user.lsp." .. lsp_name)
 					if not user_ok then
+						log.fmt_debug("Error loading user configs for lsp `%s`, assuming empty config table.", lsp_name)
 						user_lang_settings = {}
 					end
 
 					lspconfig[lsp_name].setup(vim.tbl_deep_extend("force", default_lang_settings, user_lang_settings))
+				else
+					log.fmt_debug("Lsp `%s` was found in exclusion list, skipping setup", lsp_name)
 				end
 			end
 		end,
