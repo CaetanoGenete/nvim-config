@@ -162,10 +162,10 @@ if M.cmd == nil then
 		data_directory = workspace_directory .. "/" .. vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
 	end
 
-	log.debug("java path: %s", { java_path })
-	log.debug("jdtls jar path: %s", { jar_path })
-	log.debug("jdtls config dir: %s", { config_directory })
-	log.debug("jdtls data dir: %s", { data_directory })
+	log.fmt_debug("java path: %s", java_path)
+	log.fmt_debug("jdtls jar path: %s", jar_path)
+	log.fmt_debug("jdtls config dir: %s", config_directory)
+	log.fmt_debug("jdtls data dir: %s", data_directory)
 
 	M.cmd = {
 		java_path,
