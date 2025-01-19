@@ -117,11 +117,11 @@ if M.cmd == nil then
 		else
 			local config_fragment = ""
 
-			if vim.fn.has("win32") then
+			if vim.fn.has("win32") == 1 then
 				config_fragment = "config_win"
 			else
 				-- Assume user is on a unix system
-				if vim.fn.has("mac") then
+				if vim.fn.has("mac") == 1 then
 					config_fragment = "config_mac"
 				else
 					-- Assume linux
@@ -130,7 +130,7 @@ if M.cmd == nil then
 
 				-- Try to determine if architecture is arm
 				local result = vim.system({ "uname", "-p" }, { text = true }):wait()
-				if result.code == 0 and result.stdout == "arm" then
+				if result.code == 0 and vim.trim(result.stdout) == "arm" then
 					config_fragment = config_fragment .. "_arm"
 				end
 			end
