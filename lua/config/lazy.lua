@@ -1,4 +1,4 @@
--- Copied from: https://github.com/folke/lazy.nvim. Bootstraps Lazy.
+--- Copied from: https://github.com/folke/lazy.nvim. Bootstraps Lazy.
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 ---@diagnostic disable-next-line: undefined-field

@@ -40,7 +40,8 @@ return {
 			)
 
 			local ignore = {
-				jdtls = true, -- Will be configured using nvim-jdtls to provide extended capabilities
+				-- Will be configured using nvim-jdtls to provide extended capabilities. See [ftplugin.java.lua]
+				jdtls = true,
 			}
 
 			for lsp_name, _ in pairs(user_config.language_servers) do
@@ -55,7 +56,7 @@ return {
 						user_lang_settings = {}
 					end
 
-					lspconfig[lsp_name].setup(vim.tbl_extend("force", default_lang_settings, user_lang_settings))
+					lspconfig[lsp_name].setup(vim.tbl_deep_extend("force", default_lang_settings, user_lang_settings))
 				end
 			end
 		end,
