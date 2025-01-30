@@ -1,19 +1,4 @@
-local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
-
----@param client vim.lsp.Client
----@param bufnr integer
-local function format_on_save_callback(client, bufnr)
-	if client.supports_method("textDocument/formatting") then
-		vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
-		vim.api.nvim_create_autocmd("BufWritePre", {
-			group = augroup,
-			buffer = bufnr,
-			callback = function()
-				vim.lsp.buf.format({ bufnr = bufnr })
-			end,
-		})
-	end
-end
+local setup_format_on_save = require("utils.format_on_save").setup_format_on_save
 
 ---@module "lazy"
 ---@type LazyPluginSpec
@@ -23,6 +8,7 @@ return {
 	config = function()
 		local nonels = require("null-ls")
 		nonels.setup({
+			on_attach = setup_format_on_save,
 			sources = {
 				-- golang
 				nonels.builtins.diagnostics.golangci_lint,
@@ -31,7 +17,6 @@ return {
 				-- lua
 				nonels.builtins.formatting.stylua,
 			},
-			on_attach = format_on_save_callback,
 		})
 	end,
 }

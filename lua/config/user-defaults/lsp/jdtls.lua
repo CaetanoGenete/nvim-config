@@ -3,48 +3,38 @@
 --- If not provided, paths to required jar and config files will be discovered where possible.
 
 --- @class JDTLSPaths
----
 --- The path to the java executable. If a value is not provided, it will be assumed to be available in the system PATH.
 --- @field java_path string?
----
 --- The root directory of the jdtls project. jdtls jar files are expected to exist in the /plugins directory relative
 --- to this value. If a value is not provided, an attempt will be made to discover an appropriate directory.
 --- @field jdtls_home string?
----
 --- The parent directory for jdtls project data directories (see
 --- https://github.com/mfussenegger/nvim-jdtls#data-directory-configuration). Defaults to
 --- `stdpath('cache')/jdtls/workspaces`.
 --- @field workspace_directory string?
----
 --- The OS and architecture specific configuration directory for jdtls (see the `-configuration` option described at
 --- https://github.com/eclipse-jdtls/eclipse.jdt.ls#running-from-the-command-line). If a value is not provided, an
 --- attempt will be made to determine the OS and architecture of the current system, from which an appropriate value
 --- will be selected.
 --- @field config_directory string?
----
 --- The path to the jdtls jar file. Defaults to `{jdtls_home}/plugins/org.eclipse.equinox.launcher.jar`.
 --- @field jar_path string?
----
 --- The jdtls project data directory (see https://github.com/mfussenegger/nvim-jdtls#data-directory-configuration).
 --- Defaults to `{workspace_directory}/{project_name}`, where `{project_name}` will be generated based on the current
 --- working directory.
 --- @field data_directory string?
 
 --- @class JDTLSSettings
----
 --- The shell command used to start the jdtls language server. If not provided, a suitable default will be constructed
 --- from values defined in {jdtls_paths}.
 --- @field cmd string[]?
----
 --- The root directory of the project. By default, will search for key marker files such as `.git` and `pom.xml`.
 --- @field root_dir string?
 
 --- @class JDTLSUserSettings
----
 --- Paths to be passed to the jdtls binary's command-line, or path fragments from which to construct/deduce/discover
 --- said paths.
 --- @field jdtls_paths JDTLSPaths
----
 --- Settings to be passed to jdtls.
 --- @field jdtls_settings JDTLSSettings
 

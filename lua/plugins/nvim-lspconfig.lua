@@ -2,17 +2,17 @@
 --
 -- To enable a language server:
 -- - In `user.config` add the name of the lsp to the `language_servers` table
--- - (Optional) In the `user/lsp` directory create a lua module with the same name as the language server (e.g
+-- - (Optional) In the `user/lsp` directory, create a lua module with the same name as the language server (e.g
 --   clangd.lua) and return a table of all the settings to be passed to its `setup` function.
 
 local user_config = require("config.user-defaults.config")
 
+local log = require("utils.log")
+
 ---@module "lazy"
 ---@type LazyPluginSpec[]
 return {
-	{
-		"neovim/nvim-lspconfig",
-	},
+	{ "neovim/nvim-lspconfig" },
 	{
 		"williamboman/mason-lspconfig.nvim",
 		event = { "BufReadPre", "BufNewFile" },
@@ -30,14 +30,11 @@ return {
 			require("mason-lspconfig").setup(opts)
 
 			local lspconfig = require("lspconfig")
-			local cmp_nvim = require("cmp_nvim_lsp")
+			local setup_format_on_save = require("utils.format_on_save").setup_format_on_save
 
-			-- By default, use capabilties as defined by cmp_nvim_lsp
-			lspconfig.util.default_config = vim.tbl_extend(
-				"force",
-				lspconfig.util.default_config,
-				{ capabilities = cmp_nvim.default_capabilities() }
-			)
+			lspconfig.util.default_config = vim.tbl_extend("force", lspconfig.util.default_config, {
+				on_attach = setup_format_on_save,
+			})
 
 			local ignore = {
 				-- Will be configured using nvim-jdtls to provide extended capabilities. See [ftplugin.java.lua]
@@ -55,6 +52,8 @@ return {
 					if not user_ok then
 						user_lang_settings = {}
 					end
+
+					log.fmt_debug("Setting up: %s. default-config: %s, user-config: %s", lsp_name, default_ok, user_ok)
 
 					lspconfig[lsp_name].setup(vim.tbl_deep_extend("force", default_lang_settings, user_lang_settings))
 				end
