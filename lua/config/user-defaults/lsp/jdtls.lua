@@ -37,6 +37,8 @@
 --- @field jdtls_paths JDTLSPaths?
 --- Settings to be passed to jdtls.
 --- @field jdtls_settings JDTLSSettings?
+--- Additional arguments passed to the jdtls command.
+--- @field jdtls_additional_cl_args string[]?
 
 local log = require("utils.log")
 
@@ -159,6 +161,7 @@ if M.cmd == nil then
 		config_directory,
 		"-data",
 		data_directory,
+		table.unpack(user_jdtls_settings.jdtls_additional_cl_args or {}),
 	}
 end
 
