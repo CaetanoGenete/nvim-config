@@ -41,16 +41,14 @@
 --- @field jdtls_additional_cl_args string[]?
 
 local log = require("utils.log")
+local module_utils = require("utils.module")
 
 --- @type JDTLSSettings
 local M = {}
 M.root_dir = vim.fs.root(0, { ".git", "mvnw", "gradlew", "pom.xml" })
 
----@type boolean, JDTLSUserSettings
-local ok, user_jdtls_settings = pcall(require, "config.user.lsp.jdtls")
-if not ok then
-	user_jdtls_settings = {}
-end
+---@type JDTLSUserSettings
+local user_jdtls_settings = module_utils.require_or("config.user.lsp.jdtls", {})
 
 ---@return string? jdtls_home The path to jdtls or nil if not found.
 local function try_discover_jdtls_home()
