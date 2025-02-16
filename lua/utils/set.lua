@@ -1,28 +1,40 @@
-M = {}
+---@class Set Stores unique values
+---@field elems table<any, boolean> The internal representation of the set
+local Set = {}
+Set.__index = Set
 
----@alias set table<any, boolean>
+---@param init any[]? Initial list of elements
+---@return Set
+function Set:new(init)
+	local result = setmetatable({ elems = {} }, Set)
+	result:insert_range(init or {})
+	return result
+end
 
----Accepts a set as argument and returns copy of its elements in a list
----
----@param set set
----@return any[]
-M.fromset = function(set)
+---@param elem any Element to add to the set.
+function Set:insert(elem)
+	self.elems[elem] = true
+end
+
+---@param elems any[] Range of elements to add to the set
+function Set:insert_range(elems)
+	for _, value in ipairs(elems) do
+		self:insert(value)
+	end
+end
+
+---@param elem any Element to query for existance within the set
+function Set:has(elem)
+	return self.elems[elem] or false
+end
+
+function Set:to_list()
 	---@type any[]
 	local result = {}
-	for value, _ in pairs(set) do
+	for value, _ in pairs(self.elems) do
 		table.insert(result, value)
 	end
 	return result
 end
 
----Inserts all elements of `list` into `set`, maintaining the uniqueness property of `set`.
----
----@param set set
----@param list any[]
-M.setadd = function(set, list)
-	for _, value in ipairs(list) do
-		set[value] = true
-	end
-end
-
-return M
+return Set

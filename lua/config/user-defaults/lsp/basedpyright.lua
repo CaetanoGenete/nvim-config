@@ -1,8 +1,8 @@
 local log = require("utils.log")
-local using_ruff = require("config.user-defaults.config").ls_enabled("ruff")
 
 M = {}
 
+local using_ruff = require("config.user-defaults.config").ls_enabled("ruff")
 if using_ruff then
 	log.debug("Ruff detected.")
 	log.debug("Disabling basedpyright lint warnings in favour of ruff.")

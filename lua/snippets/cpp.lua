@@ -25,7 +25,7 @@ return {
 		{
 			trig = "guard",
 			snippetType = "snippet",
-			desc = "Adds GoogleStyle header-guard and namespace declaration to the current .hpp file.",
+			desc = "Adds LLVM header-guard and namespace declaration to the current .hpp file.",
 		},
 		fmt(
 			[[

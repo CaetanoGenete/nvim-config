@@ -40,7 +40,7 @@ return {
 				jdtls = true, -- Will be configured using nvim-jdtls. See [ftplugin.java.lua]
 			}
 
-			for ls_name, _ in pairs(user_config.language_servers) do
+			for ls_name, _ in pairs(user_config.language_servers.elems) do
 				if not ignore[ls_name] then
 					log.fmt_debug("Configuring '%s' LS", ls_name)
 
