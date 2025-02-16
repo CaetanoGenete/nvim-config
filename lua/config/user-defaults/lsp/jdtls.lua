@@ -84,51 +84,41 @@ if M.cmd == nil then
 	if config_directory == nil then
 		log.debug("config_directory was not provided, using jdtls_home to determine most suitable value")
 
-		-- Optimisation: only search for jdtls if necessary
 		jdtls_home = jdtls_home or try_discover_jdtls_home()
 		if jdtls_home == nil then
-			vim.notify(
-				"User has not provided `config_directory` nor `jdtls_home`, a suitable config_directory could not be determined",
-				vim.log.levels.ERROR
-			)
+			error("User has not provided `config_directory` nor `jdtls_home`, jdtls_home could not be deduced.")
+		end
+
+		local config_fragment = ""
+		if vim.fn.has("win32") == 1 then
+			config_fragment = "config_win"
 		else
-			local config_fragment = ""
-
-			if vim.fn.has("win32") == 1 then
-				config_fragment = "config_win"
+			-- Assume user is on a unix system
+			if vim.fn.has("mac") == 1 then
+				config_fragment = "config_mac"
 			else
-				-- Assume user is on a unix system
-				if vim.fn.has("mac") == 1 then
-					config_fragment = "config_mac"
-				else
-					-- Assume linux
-					config_fragment = "config_linux"
-				end
-
-				-- Try to determine if architecture is arm
-				local result = vim.system({ "uname", "-p" }, { text = true }):wait()
-				if result.code == 0 and vim.trim(result.stdout) == "arm" then
-					config_fragment = config_fragment .. "_arm"
-				end
+				-- Assume linux
+				config_fragment = "config_linux"
 			end
 
-			config_directory = vim.fs.joinpath(jdtls_home, config_fragment)
+			-- Try to determine if architecture is arm
+			local result = vim.system({ "uname", "-p" }, { text = true }):wait()
+			if result.code == 0 and vim.trim(result.stdout) == "arm" then
+				config_fragment = config_fragment .. "_arm"
+			end
 		end
+
+		config_directory = vim.fs.joinpath(jdtls_home, config_fragment)
 	end
 
 	if jar_path == nil then
 		log.debug("jar_path was not provided, using jdtls_home to determine most suitable value")
 
-		-- Optimisation: only serach for jdtls if necessary
 		jdtls_home = jdtls_home or try_discover_jdtls_home()
 		if jdtls_home == nil then
-			vim.notify(
-				"User has not provided `jar_path` nor `jdtls_home`, no suitable value for 'jar_path' could be determined",
-				vim.log.levels.ERROR
-			)
-		else
-			jar_path = vim.fs.joinpath(jdtls_home, "/plugins/org.eclipse.equinox.launcher.jar")
+			error("User has not provided `jar_path` nor `jdtls_home`, no suitable value for 'jar_path' available.")
 		end
+		jar_path = vim.fs.joinpath(jdtls_home, "/plugins/org.eclipse.equinox.launcher.jar")
 	end
 
 	if data_directory == nil then
