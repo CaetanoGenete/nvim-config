@@ -19,8 +19,5 @@ return {
 				NormalFloat = { bg = colors.none },
 			}
 		end,
-		integrations = {
-			mason = true,
-		},
 	},
 }

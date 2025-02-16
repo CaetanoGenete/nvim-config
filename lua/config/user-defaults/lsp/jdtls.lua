@@ -34,47 +34,31 @@
 --- @class JDTLSUserSettings
 --- Paths to be passed to the jdtls binary's command-line, or path fragments from which to construct/deduce/discover
 --- said paths.
---- @field jdtls_paths JDTLSPaths
+--- @field jdtls_paths JDTLSPaths?
 --- Settings to be passed to jdtls.
---- @field jdtls_settings JDTLSSettings
+--- @field jdtls_settings JDTLSSettings?
 
 local log = require("utils.log")
 
 --- @type JDTLSSettings
-local M = {
-	root_dir = vim.fs.root(0, { ".git", "mvnw", "gradlew", "pom.xml" }),
-
-	-- Here you can configure eclipse.jdt.ls specific settings
-	-- See https://github.com/eclipse/eclipse.jdt.ls/wiki/Running-the-JAVA-LS-server-from-the-command-line#initialize-request
-	-- for a list of options
-	settings = {
-		java = {},
-	},
-
-	-- Language server `initializationOptions`
-	-- You need to extend the `bundles` with paths to jar files
-	-- if you want to use additional eclipse.jdt.ls plugins.
-	--
-	-- See https://github.com/mfussenegger/nvim-jdtls#java-debug-installation
-	--
-	-- If you don't plan on using the debugger or other eclipse.jdt.ls plugins you can remove this
-	init_options = {
-		bundles = {},
-	},
-}
+local M = {}
+M.root_dir = vim.fs.root(0, { ".git", "mvnw", "gradlew", "pom.xml" })
 
 ---@type boolean, JDTLSUserSettings
 local ok, user_jdtls_settings = pcall(require, "config.user.lsp.jdtls")
-if ok then
-	M = vim.tbl_extend("force", M, user_jdtls_settings.jdtls_settings)
+if not ok then
+	user_jdtls_settings = {}
 end
 
----Searches for jdtls in standard locations.
 ---@return string? jdtls_home The path to jdtls or nil if not found.
 local function try_discover_jdtls_home()
-	local jdtls_search_paths = {
-		vim.fn.stdpath("data") .. "/mason/packages/jdtls", -- mason
-	}
+	--- @type string[]
+	local jdtls_search_paths = {}
+
+	local mason_ok, mason_registry = pcall(require, "mason-registry")
+	if mason_ok then
+		table.insert(jdtls_search_paths, mason_registry.get_package("jdtls"):get_install_path())
+	end
 
 	for _, path in ipairs(jdtls_search_paths) do
 		if vim.fn.isdirectory(path) == 1 then
@@ -87,6 +71,7 @@ end
 
 if M.cmd == nil then
 	local jdtls_paths = user_jdtls_settings.jdtls_paths or {}
+
 	local java_path = jdtls_paths.java_path or "java"
 	local config_directory = jdtls_paths.config_directory
 	local jar_path = jdtls_paths.jar_path
@@ -97,7 +82,7 @@ if M.cmd == nil then
 	if config_directory == nil then
 		log.debug("config_directory was not provided, using jdtls_home to determine most suitable value")
 
-		-- Optimisation: only serach for jdtls if necessary
+		-- Optimisation: only search for jdtls if necessary
 		jdtls_home = jdtls_home or try_discover_jdtls_home()
 		if jdtls_home == nil then
 			vim.notify(
@@ -125,7 +110,7 @@ if M.cmd == nil then
 				end
 			end
 
-			config_directory = jdtls_home .. "/" .. config_fragment
+			config_directory = vim.fs.joinpath(jdtls_home, config_fragment)
 		end
 	end
 
@@ -140,16 +125,14 @@ if M.cmd == nil then
 				vim.log.levels.ERROR
 			)
 		else
-			jar_path = jdtls_home .. "/plugins/org.eclipse.equinox.launcher.jar"
+			jar_path = vim.fs.joinpath(jdtls_home, "/plugins/org.eclipse.equinox.launcher.jar")
 		end
 	end
 
 	if data_directory == nil then
-		if workspace_directory == nil then
-			workspace_directory = vim.fn.stdpath("cache") .. "/jdtls/workspaces"
-		end
-
-		data_directory = workspace_directory .. "/" .. vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
+		--- @diagnostic disable-next-line:param-type-mismatch cache should always return a single string
+		workspace_directory = workspace_directory or vim.fs.joinpath(vim.fn.stdpath("cache"), "/jdtls/workspaces")
+		data_directory = vim.fs.joinpath(workspace_directory, vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t"))
 	end
 
 	log.fmt_debug("java path: %s", java_path)
@@ -179,4 +162,4 @@ if M.cmd == nil then
 	}
 end
 
-return M
+return vim.tbl_extend("force", M, user_jdtls_settings.jdtls_settings)

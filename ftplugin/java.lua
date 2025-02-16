@@ -1,5 +1,4 @@
-local user_settings = require("config.user-defaults.config")
-if not user_settings.language_servers["jdtls"] then
+if not require("config.user-defaults.config").ls_enabled("jdtls") then
 	return
 end
 

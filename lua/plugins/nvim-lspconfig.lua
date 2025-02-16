@@ -5,9 +5,8 @@
 -- - (Optional) In the `user/lsp` directory, create a lua module with the same name as the language server (e.g
 --   clangd.lua) and return a table of all the settings to be passed to its `setup` function.
 
-local user_config = require("config.user-defaults.config")
-
 local log = require("utils.log")
+local user_config = require("config.user-defaults.config")
 
 ---@module "lazy"
 ---@type LazyPluginSpec[]

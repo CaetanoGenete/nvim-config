@@ -9,12 +9,19 @@ return {
 	},
 	config = function()
 		local builtin = require("telescope.builtin")
+
 		-- key mappings
 		vim.keymap.set(
 			"n",
 			"<leader>ff",
 			builtin.find_files,
 			{ desc = "Use telescope to view (and select) all files from the current working directory." }
+		)
+		vim.keymap.set(
+			"n",
+			"<leader>lg",
+			builtin.live_grep,
+			{ desc = "Use telescope to grep current directory for search string." }
 		)
 		vim.keymap.set(
 			"n",

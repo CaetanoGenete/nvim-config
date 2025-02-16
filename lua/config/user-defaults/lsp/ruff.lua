@@ -10,9 +10,4 @@ end
 
 return {
 	on_attach = on_attach,
-	init_options = {
-		settings = {
-			logLevel = "debug",
-		},
-	},
 }
