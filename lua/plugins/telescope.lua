@@ -11,53 +11,19 @@ return {
 		local builtin = require("telescope.builtin")
 
 		-- key mappings
-		vim.keymap.set(
-			"n",
-			"<leader>ff",
-			builtin.find_files,
-			{ desc = "Use telescope to view (and select) all files from the current working directory." }
-		)
-		vim.keymap.set(
-			"n",
-			"<leader>lg",
-			builtin.live_grep,
-			{ desc = "Use telescope to grep current directory for search string." }
-		)
-		vim.keymap.set(
-			"n",
-			"<C-p>",
-			builtin.git_files,
-			{ desc = "Use telescope to view (and select) all files managed by git." }
-		)
-		vim.keymap.set(
-			"n",
-			"<leader>lr",
-			builtin.lsp_references,
-			{ desc = "List all references of the symbol under the cursor" }
-		)
-		vim.keymap.set(
-			"n",
-			"<leader>li",
-			builtin.lsp_implementations,
-			{ desc = "List all implementations of the symbol under the cursor." }
-		)
-		vim.keymap.set(
-			"n",
-			"<leader>ls",
-			builtin.lsp_document_symbols,
-			{ desc = "Lists all symbols of the current document." }
-		)
-		vim.keymap.set(
-			"n",
-			"<leader>lws",
-			builtin.lsp_workspace_symbols,
-			{ desc = "Lists all symbols of the current workspace." }
-		)
-		vim.keymap.set(
-			"n",
-			"<leader>ld",
-			builtin.diagnostics,
-			{ desc = "List all diagnostics (info and error messages)" }
-		)
+		vim.keymap.set("n", "<leader>ff", builtin.find_files)
+		vim.keymap.set("n", "<leader>fc", function()
+			builtin.find_files({
+				cwd = vim.fn.stdpath("config"),
+				no_ignore = true,
+			})
+		end)
+		vim.keymap.set("n", "<leader>lg", builtin.live_grep)
+		vim.keymap.set("n", "<C-p>", builtin.git_files)
+		vim.keymap.set("n", "<leader>lr", builtin.lsp_references)
+		vim.keymap.set("n", "<leader>li", builtin.lsp_implementations)
+		vim.keymap.set("n", "<leader>ls", builtin.lsp_document_symbols)
+		vim.keymap.set("n", "<leader>lws", builtin.lsp_workspace_symbols)
+		vim.keymap.set("n", "<leader>ld", builtin.diagnostics)
 	end,
 }
