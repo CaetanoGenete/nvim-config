@@ -78,6 +78,7 @@ if M.cmd == nil then
 	local workspace_directory = jdtls_paths.workspace_directory
 	local data_directory = jdtls_paths.data_directory
 	local jdtls_home = jdtls_paths.jdtls_home
+	local additional_cl_args = user_jdtls_settings.jdtls_additional_cl_args or {}
 
 	if config_directory == nil then
 		log.debug("config_directory was not provided, using jdtls_home to determine most suitable value")
@@ -149,8 +150,14 @@ if M.cmd == nil then
 		config_directory,
 		"-data",
 		data_directory,
-		table.unpack(user_jdtls_settings.jdtls_additional_cl_args or {}),
 	}
+
+	if #additional_cl_args > 0 then
+		M.cmd = {
+			table.unpack(M.cmd),
+			table.unpack(additional_cl_args),
+		}
+	end
 end
 
-return vim.tbl_extend("force", M, user_jdtls_settings.jdtls_settings)
+return vim.tbl_extend("force", M, user_jdtls_settings.jdtls_settings or {})
