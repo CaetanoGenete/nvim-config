@@ -38,7 +38,7 @@
 --- Settings to be passed to jdtls.
 --- @field jdtls_settings JDTLSSettings?
 --- Additional arguments passed to the jdtls command.
---- @field jdtls_additional_cl_args string[]?
+--- @field additional_jvm_args string[]?
 
 local log = require("utils.log")
 local module_utils = require("utils.module")
@@ -78,7 +78,7 @@ if M.cmd == nil then
 	local workspace_directory = jdtls_paths.workspace_directory
 	local data_directory = jdtls_paths.data_directory
 	local jdtls_home = jdtls_paths.jdtls_home
-	local additional_cl_args = user_jdtls_settings.jdtls_additional_cl_args or {}
+	local additional_jvm_args = user_jdtls_settings.additional_jvm_args or {}
 
 	if config_directory == nil then
 		log.debug("config_directory was not provided, using jdtls_home to determine most suitable value")
@@ -131,7 +131,7 @@ if M.cmd == nil then
 	log.fmt_debug("jdtls config dir: %s", config_directory)
 	log.fmt_debug("jdtls data dir: %s", data_directory)
 
-	M.cmd = {
+	local jvm_args = {
 		java_path,
 		"-Declipse.application=org.eclipse.jdt.ls.core.id1",
 		"-Dosgi.bundles.defaultStartLevel=4",
@@ -144,7 +144,9 @@ if M.cmd == nil then
 		"java.base/java.util=ALL-UNNAMED",
 		"--add-opens",
 		"java.base/java.lang=ALL-UNNAMED",
-		"-jar",
+	}
+
+	local jdtls_args = {
 		jar_path,
 		"-configuration",
 		config_directory,
@@ -152,10 +154,16 @@ if M.cmd == nil then
 		data_directory,
 	}
 
-	if #additional_cl_args > 0 then
+	if #additional_jvm_args > 0 then
 		M.cmd = {
-			table.unpack(M.cmd),
-			table.unpack(additional_cl_args),
+			table.unpack(jvm_args),
+			table.unpack(additional_jvm_args),
+			table.unpack(jdtls_args),
+		}
+	else
+		M.cmd = {
+			table.unpack(jvm_args),
+			table.unpack(jdtls_args),
 		}
 	end
 end
