@@ -147,6 +147,7 @@ if M.cmd == nil then
 	}
 
 	local jdtls_args = {
+		"-jar",
 		jar_path,
 		"-configuration",
 		config_directory,
@@ -154,17 +155,15 @@ if M.cmd == nil then
 		data_directory,
 	}
 
-	if #additional_jvm_args > 0 then
-		M.cmd = {
-			table.unpack(jvm_args),
-			table.unpack(additional_jvm_args),
-			table.unpack(jdtls_args),
-		}
-	else
-		M.cmd = {
-			table.unpack(jvm_args),
-			table.unpack(jdtls_args),
-		}
+	M.cmd = {}
+	for _, value in ipairs(jvm_args) do
+		table.insert(M.cmd, value)
+	end
+	for _, value in ipairs(additional_jvm_args) do
+		table.insert(M.cmd, value)
+	end
+	for _, value in ipairs(jdtls_args) do
+		table.insert(M.cmd, value)
 	end
 end
 
