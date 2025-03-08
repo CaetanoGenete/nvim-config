@@ -21,20 +21,14 @@ return {
 		},
 		opts = {
 			-- NOTE: language servers defined by user config must be installed manually or through mason
-			ensure_installed = user_config.default_language_servers,
+			ensure_installed = DEFAULT_LANGUAGE_SERVERS,
 		},
-		-- NOTE: Language servers must be setup **after** mason-lspconfig, hence:
 		config = function(_, opts)
+			-- NOTE: Language servers must be setup **after** mason-lspconfig, hence:
 			require("mason-lspconfig").setup(opts)
 
 			local lspconfig = require("lspconfig")
 			local log = require("utils.log")
-
-			lspconfig.util.default_config = vim.tbl_extend(
-				"force",
-				lspconfig.util.default_config,
-				{ on_attach = require("utils.format_on_save").setup_format_on_save }
-			)
 
 			local ignore = {
 				jdtls = true, -- Will be configured using nvim-jdtls. See [ftplugin.java.lua]
@@ -42,8 +36,6 @@ return {
 
 			for ls_name, _ in pairs(user_config.language_servers.elems) do
 				if not ignore[ls_name] then
-					log.fmt_debug("Configuring '%s' LS", ls_name)
-
 					lspconfig[ls_name].setup(
 						vim.tbl_deep_extend(
 							"force",
@@ -51,6 +43,8 @@ return {
 							require("utils.module").require_or("user.lsp." .. ls_name, {})
 						)
 					)
+				else
+					log.fmt_debug("Language server: '%s', in ignore list, skipping configuration.", ls_name)
 				end
 			end
 		end,

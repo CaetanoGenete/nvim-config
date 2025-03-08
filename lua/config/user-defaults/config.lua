@@ -1,18 +1,20 @@
 --- This module provides default configs for user-settings
 
-local M = {}
+DEFAULT_LANGUAGE_SERVERS = { "lua_ls" }
 
 ---@module "config.user-defaults.types"
 ---@type UserSettings
 local user_settings = require("utils.module").require_or("config.user.config", {})
 
---- Language servers which are installed and configured by default.
-M.default_language_servers = { "lua_ls" }
-
---- The language servers to be attached and configured.
-M.language_servers = require("utils.set"):new()
-M.language_servers:insert_range(M.default_language_servers)
-M.language_servers:insert_range(user_settings.language_servers or {})
+local M = {
+	--- The language servers to be attached and configured.
+	language_servers = require("utils.set"):new({
+		unpack(DEFAULT_LANGUAGE_SERVERS),
+		unpack(user_settings.language_servers or {}),
+	}),
+	formatters_by_ft = user_settings.formatters_by_ft,
+	linters_by_ft = user_settings.linters_by_ft or {},
+}
 
 --- @param language string
 --- @return boolean

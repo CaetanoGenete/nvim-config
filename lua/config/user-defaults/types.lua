@@ -1,5 +1,5 @@
 --- @class UserSettings
 --- The enabled language servers.
 --- @field language_servers string[]?
---- @field formatters_by_ft any[]?
---- @field linters_by_ft any[]?
+--- @field formatters_by_ft table<string, any>?
+--- @field linters_by_ft table<string, any>?
