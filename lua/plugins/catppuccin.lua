@@ -17,6 +17,7 @@ return {
 			return {
 				-- Trasparent background for floats such as vim.lsp.buf.hover
 				NormalFloat = { bg = colors.none },
+				PMenu = { bg = colors.none },
 			}
 		end,
 	},

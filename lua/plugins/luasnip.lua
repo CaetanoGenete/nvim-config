@@ -2,14 +2,10 @@
 ---@type LazyPluginSpec[]
 return {
 	{
-		"saadparwaiz1/cmp_luasnip",
-		event = "VeryLazy",
-	},
-	{
 		"L3MON4D3/LuaSnip",
 		-- follow latest release.
 		version = "v2.*",
-		event = "VeryLazy",
+		lazy = true,
 		opts = {
 			update_events = { "TextChanged", "TextChangedI" },
 			enable_autosnippets = true,

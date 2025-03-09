@@ -10,23 +10,25 @@ local user_config = require("config.user-defaults.config")
 ---@module "lazy"
 ---@type LazyPluginSpec[]
 return {
-	{ "neovim/nvim-lspconfig" },
 	{
 		"williamboman/mason-lspconfig.nvim",
-		event = { "BufReadPre", "BufNewFile" },
 		dependencies = {
-			"hrsh7th/cmp-nvim-lsp",
-			"neovim/nvim-lspconfig",
 			"williamboman/mason.nvim",
 		},
+		lazy = true,
 		opts = {
 			-- NOTE: language servers defined by user config must be installed manually or through mason
 			ensure_installed = DEFAULT_LANGUAGE_SERVERS,
 		},
-		config = function(_, opts)
-			-- NOTE: Language servers must be setup **after** mason-lspconfig, hence:
-			require("mason-lspconfig").setup(opts)
-
+	},
+	{
+		"neovim/nvim-lspconfig",
+		event = { "BufReadPre", "BufNewFile" },
+		dependencies = {
+			"saghen/blink.cmp",
+			"williamboman/mason-lspconfig.nvim",
+		},
+		config = function()
 			local lspconfig = require("lspconfig")
 			local log = require("utils.log")
 
@@ -39,6 +41,7 @@ return {
 					lspconfig[ls_name].setup(
 						vim.tbl_deep_extend(
 							"force",
+							{ capabilities = require("blink.cmp").get_lsp_capabilities() },
 							require("utils.module").require_or("config.user-defaults.lsp." .. ls_name, {}),
 							require("utils.module").require_or("user.lsp." .. ls_name, {})
 						)
