@@ -78,16 +78,20 @@ end
 local function try_discover_lombok()
 	--- @type string[]
 	local lombok_search_paths = {
-		"~/.m2/repository",
+		-- OSX maven lombok install dir
+		"~/.m2/repository/org/projectlombok",
 	}
 
 	local mason_ok, mason_registry = pcall(require, "mason-registry")
-	if mason_ok and mason_registry.has_package("lombok") then
-		table.insert(lombok_search_paths, 1, mason_registry.get_package("lombok"):get_install_path())
+	if mason_ok and mason_registry.has_package("lombok-nightly") then
+		table.insert(lombok_search_paths, 1, mason_registry.get_package("lombok-nightly"):get_install_path())
 	end
 
 	for _, path in ipairs(lombok_search_paths) do
-		local candidates = vim.fn.glob(vim.fs.joinpath(path, "/**/*lombok.jar"))
+		local candidates = vim.fn.glob(vim.fs.joinpath(path, "/**/lombok*.jar"))
+		for _, candidate in ipairs(candidates) do
+			log.fmt_debug("Found lombok candidate: %s", candidate)
+		end
 		if #candidates > 0 then
 			return candidates[1]
 		end
