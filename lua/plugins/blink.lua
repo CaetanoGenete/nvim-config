@@ -4,6 +4,7 @@ require("config.display")
 --- @type LazyPluginSpec
 return {
 	"saghen/blink.cmp",
+	version = "v0.13.1",
 	event = "InsertEnter",
 	--- @module 'blink.cmp'
 	--- @type blink.cmp.Config
