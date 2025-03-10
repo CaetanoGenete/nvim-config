@@ -10,7 +10,7 @@ local M = {
 	--- The language servers to be attached and configured.
 	language_servers = require("utils.set"):new({
 		unpack(DEFAULT_LANGUAGE_SERVERS),
-		unpack(user_settings.language_servers or {}),
+		unpack(user_settings.language_servers or DEFAULT_LANGUAGE_SERVERS),
 	}),
 	formatters_by_ft = user_settings.formatters_by_ft,
 	linters_by_ft = user_settings.linters_by_ft or {},

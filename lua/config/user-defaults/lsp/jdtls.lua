@@ -131,7 +131,8 @@ if M.cmd == nil then
 	log.fmt_debug("jdtls config dir: %s", config_directory)
 	log.fmt_debug("jdtls data dir: %s", data_directory)
 
-	local jvm_args = {
+	M.cmd = {}
+	vim.list_extend(M.cmd, {
 		java_path,
 		"-Declipse.application=org.eclipse.jdt.ls.core.id1",
 		"-Dosgi.bundles.defaultStartLevel=4",
@@ -144,27 +145,16 @@ if M.cmd == nil then
 		"java.base/java.util=ALL-UNNAMED",
 		"--add-opens",
 		"java.base/java.lang=ALL-UNNAMED",
-	}
-
-	local jdtls_args = {
+	})
+	vim.list_extend(M.cmd, additional_jvm_args)
+	vim.list_extend(M.cmd, {
 		"-jar",
 		jar_path,
 		"-configuration",
 		config_directory,
 		"-data",
 		data_directory,
-	}
-
-	M.cmd = {}
-	for _, value in ipairs(jvm_args) do
-		table.insert(M.cmd, value)
-	end
-	for _, value in ipairs(additional_jvm_args) do
-		table.insert(M.cmd, value)
-	end
-	for _, value in ipairs(jdtls_args) do
-		table.insert(M.cmd, value)
-	end
+	})
 end
 
 return vim.tbl_extend("force", M, user_jdtls_settings.jdtls_settings or {})
