@@ -183,7 +183,7 @@ if M.cmd == nil then
 			end
 		end
 
-		table.insert(additional_jvm_args, "--java-agent=" .. lombok)
+		table.insert(additional_jvm_args, "-javaagent:" .. lombok)
 		::exit_error::
 	end
 
