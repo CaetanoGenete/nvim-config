@@ -39,6 +39,11 @@
 --- @field jdtls_settings JDTLSSettings?
 --- Additional arguments passed to the jdtls command.
 --- @field additional_jvm_args string[]?
+--- Whether to add lombok as a java-agent.
+---	- If `true`, will look for the lombok binary in common locations, failing with a warning if it cannot find it.
+---	- If a string, will assume it represents a path to the lombok jar file.
+--- Defaults to `false`.
+--- @field lombok boolean|string?
 
 local log = require("utils.log")
 local module_utils = require("utils.module")
@@ -50,7 +55,7 @@ M.root_dir = vim.fs.root(0, { ".git", "mvnw", "gradlew", "pom.xml" })
 ---@type JDTLSUserSettings
 local user_jdtls_settings = module_utils.require_or("config.user.lsp.jdtls", {})
 
----@return string? jdtls_home The path to jdtls or nil if not found.
+---@return string? jdtls_home The path to jdtls or `nil` if not found.
 local function try_discover_jdtls_home()
 	--- @type string[]
 	local jdtls_search_paths = {}
@@ -63,6 +68,28 @@ local function try_discover_jdtls_home()
 	for _, path in ipairs(jdtls_search_paths) do
 		if vim.fn.isdirectory(path) == 1 then
 			return path
+		end
+	end
+
+	return nil
+end
+
+---@return string? lombok_path The path to lombok binary or `nil` if not found.
+local function try_discover_lombok()
+	--- @type string[]
+	local lombok_search_paths = {
+		"~/.m2/repository",
+	}
+
+	local mason_ok, mason_registry = pcall(require, "mason-registry")
+	if mason_ok and mason_registry.has_package("lombok") then
+		table.insert(lombok_search_paths, 1, mason_registry.get_package("lombok"):get_install_path())
+	end
+
+	for _, path in ipairs(lombok_search_paths) do
+		local candidates = vim.fn.glob(vim.fs.joinpath(path, "/**/*lombok.jar"))
+		if #candidates > 0 then
+			return candidates[1]
 		end
 	end
 
@@ -83,26 +110,29 @@ if M.cmd == nil then
 	if config_directory == nil then
 		log.debug("config_directory was not provided, using jdtls_home to determine most suitable value")
 
-		jdtls_home = jdtls_home or try_discover_jdtls_home()
-		if jdtls_home == nil then
-			error("User has not provided `config_directory` nor `jdtls_home`, jdtls_home could not be deduced.")
-		end
+		jdtls_home = assert(
+			jdtls_home or try_discover_jdtls_home(),
+			"`config_directory` was not provided nor was `jdtls_home` found. Could not determine `config_directory`."
+		)
 
 		local config_fragment = ""
 		if vim.fn.has("win32") == 1 then
+			log.debug("OS is `windows`.")
 			config_fragment = "config_win"
 		else
 			-- Assume user is on a unix system
 			if vim.fn.has("mac") == 1 then
+				log.debug("OS is `OSX`.")
 				config_fragment = "config_mac"
 			else
-				-- Assume linux
+				log.debug("Could not determine OS, assuming `linux`.")
 				config_fragment = "config_linux"
 			end
 
 			-- Try to determine if architecture is arm
 			local result = vim.system({ "uname", "-p" }, { text = true }):wait()
 			if result.code == 0 and vim.trim(result.stdout) == "arm" then
+				log.debug("Architecture is `arm`.")
 				config_fragment = config_fragment .. "_arm"
 			end
 		end
@@ -113,10 +143,10 @@ if M.cmd == nil then
 	if jar_path == nil then
 		log.debug("jar_path was not provided, using jdtls_home to determine most suitable value")
 
-		jdtls_home = jdtls_home or try_discover_jdtls_home()
-		if jdtls_home == nil then
-			error("User has not provided `jar_path` nor `jdtls_home`, no suitable value for 'jar_path' available.")
-		end
+		jdtls_home = assert(
+			jdtls_home or try_discover_jdtls_home(),
+			"`jar_path` was not provided nor was `jdtls_home` found, could not determine `jar_path`."
+		)
 		jar_path = vim.fs.joinpath(jdtls_home, "/plugins/org.eclipse.equinox.launcher.jar")
 	end
 
@@ -124,6 +154,31 @@ if M.cmd == nil then
 		--- @diagnostic disable-next-line:param-type-mismatch cache should always return a single string
 		workspace_directory = workspace_directory or vim.fs.joinpath(vim.fn.stdpath("cache"), "/jdtls/workspaces")
 		data_directory = vim.fs.joinpath(workspace_directory, vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t"))
+	end
+
+	if user_jdtls_settings.lombok or false then
+		local lombok = user_jdtls_settings.lombok
+
+		if type(lombok) == "string" then
+			if vim.fn.isdirectory(lombok) == 0 then
+				log.fmt_warn("Directory `%s` is invalid.", lombok)
+				goto exit_error
+			end
+
+			if not vim.endswith(lombok, ".jar") then
+				log.fmt_warn("Directory `%s` is not a valid jar file.", lombok)
+				goto exit_error
+			end
+		else
+			lombok = try_discover_lombok()
+			if not lombok then
+				log.fmt_warn("Could not find `lombok`, try specify `lombok` as path to a valid binary.")
+				goto exit_error
+			end
+		end
+
+		table.insert(additional_jvm_args, "--java-agent=" .. lombok)
+		::exit_error::
 	end
 
 	log.fmt_debug("java path: %s", java_path)
