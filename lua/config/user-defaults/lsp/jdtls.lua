@@ -76,6 +76,8 @@ end
 
 ---@return string? lombok_path The path to lombok binary or `nil` if not found.
 local function try_discover_lombok()
+	--- TODO: Cache this result
+
 	--- @type string[]
 	local lombok_search_paths = {
 		-- OSX maven lombok install dir
@@ -88,12 +90,12 @@ local function try_discover_lombok()
 	end
 
 	for _, path in ipairs(lombok_search_paths) do
-		local candidates = vim.fn.glob(vim.fs.joinpath(path, "/**/lombok*.jar"))
-		for _, candidate in ipairs(candidates) do
-			log.fmt_debug("Found lombok candidate: %s", candidate)
-		end
+		--- @type string[]
+		local candidates = vim.fn.glob(vim.fs.joinpath(path, "/**/lombok*.jar"), nil, true)
 		if #candidates > 0 then
-			return candidates[1]
+			local result = candidates[#candidates]
+			log.fmt_debug("Lombok found at `%s`", result)
+			return result
 		end
 	end
 
@@ -175,7 +177,7 @@ if M.cmd == nil then
 			end
 		else
 			lombok = try_discover_lombok()
-			if not lombok then
+			if lombok == nil then
 				log.fmt_warn("Could not find `lombok`, try specify `lombok` as path to a valid binary.")
 				goto exit_error
 			end
