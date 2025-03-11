@@ -28,7 +28,13 @@ return {
 	---@module "conform.types"
 	---@type conform.setupOpts
 	opts = {
+		log_level = vim.log.levels.DEBUG,
 		formatters_by_ft = require("config.user-defaults.config").formatters_by_ft,
+		formatters = {
+			prettier = {
+				prepend_args = { "--prose-wrap", "always" },
+			},
+		},
 		format_on_save = function(bufnr)
 			if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
 				return
