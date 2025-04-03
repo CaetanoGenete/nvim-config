@@ -2,6 +2,15 @@ local log = require("utils.log")
 
 M = {}
 
+local root_files = {
+	"pyproject.toml",
+	"setup.py",
+	"setup.cfg",
+	"Pipfile",
+	"pyrightconfig.json",
+	".git",
+}
+
 local using_ruff = require("config.user-defaults.config").ls_enabled("ruff")
 if using_ruff then
 	log.debug("Ruff detected.")
@@ -18,6 +27,9 @@ if using_ruff then
 			disableOrganizeImports = true,
 		},
 	}
+	M.root_dir = function(fname)
+		return require("lspconfig.util").root_pattern(unpack(root_files))(fname)
+	end
 end
 
 return M
