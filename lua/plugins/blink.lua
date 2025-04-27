@@ -1,16 +1,17 @@
-require("config.display")
+-- For `BORDER_STYLE`
+require("config.editor")
 
 --- @module "lazy"
 --- @type LazyPluginSpec
 return {
 	"saghen/blink.cmp",
-	version = "v0.13.1",
+	version = "v1.1.1",
 	event = "InsertEnter",
 	--- @module 'blink.cmp'
 	--- @type blink.cmp.Config
 	opts = {
 		keymap = { preset = "enter" },
-		fuzzy = { implementation = "lua" },
+		fuzzy = { implementation = "prefer_rust" },
 		snippets = { preset = "luasnip" },
 		sources = {
 			default = { "lazydev", "lsp", "path", "snippets", "buffer" },

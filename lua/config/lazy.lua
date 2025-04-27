@@ -17,7 +17,9 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-require("config.display")
+-- For `BORDER_STYLE`
+require("config.editor")
+
 require("lazy").setup({
 	spec = { { import = "plugins" } },
 	checker = { enabled = true },

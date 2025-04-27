@@ -29,7 +29,7 @@ return {
 	---@type conform.setupOpts
 	opts = {
 		log_level = vim.log.levels.DEBUG,
-		formatters_by_ft = require("config.user-defaults.config").formatters_by_ft,
+		formatters_by_ft = require("utils.module").require_or("user.formatters", {}),
 		formatters = {
 			prettier = {
 				prepend_args = { "--prose-wrap", "always" },
