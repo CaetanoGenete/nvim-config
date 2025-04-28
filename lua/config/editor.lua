@@ -16,6 +16,6 @@ vim.keymap.set("n", "K", function()
 end)
 
 vim.diagnostic.config({
-	virtual_lines = true,
+	virtual_text = true,
 	float = { border = BORDER_STYLE },
 })
