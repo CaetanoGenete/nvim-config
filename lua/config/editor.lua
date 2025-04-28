@@ -7,6 +7,7 @@ vim.o.softtabstop = 4
 vim.o.shiftwidth = 4
 vim.o.wrap = false
 vim.o.colorcolumn = "120"
+vim.o.signcolumn = "yes:1"
 
 vim.wo.relativenumber = true
 

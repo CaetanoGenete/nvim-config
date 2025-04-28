@@ -7,4 +7,5 @@ require("config.lazy")
 
 vim.cmd.colorscheme("catppuccin")
 
+-- Load user-config last
 pcall(require, "user.init")
