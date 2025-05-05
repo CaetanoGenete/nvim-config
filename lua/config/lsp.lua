@@ -5,3 +5,15 @@ vim.lsp.enable("lua_ls")
 vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action)
 vim.keymap.set("n", "<leader>r", vim.lsp.buf.rename)
 vim.keymap.set("n", "<leader>vf", vim.diagnostic.open_float)
+
+-- LSP configs
+vim.lsp.config("texlab", {
+	settings = {
+		texlab = {
+			latexFormatter = "latexindent",
+			latexindent = {
+				modifyLineBreaks = true,
+			},
+		},
+	},
+})
