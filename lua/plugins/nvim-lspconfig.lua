@@ -3,6 +3,7 @@
 return {
 	{
 		"williamboman/mason-lspconfig.nvim",
+		version = "v2.0.0",
 		dependencies = { "williamboman/mason.nvim" },
 		lazy = true,
 		opts = {
@@ -12,6 +13,7 @@ return {
 	},
 	{
 		"neovim/nvim-lspconfig",
+		version = "v2.1.0",
 		event = { "BufReadPre", "BufNewFile" },
 		dependencies = {
 			"saghen/blink.cmp",

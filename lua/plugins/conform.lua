@@ -13,6 +13,7 @@ end, {
 ---@type LazyPluginSpec
 return {
 	"stevearc/conform.nvim",
+	version = "v9.0.0",
 	event = { "BufWritePre" },
 	cmd = { "ConformInfo" },
 	keys = {

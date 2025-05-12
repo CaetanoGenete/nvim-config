@@ -5,6 +5,7 @@ require("config.editor")
 ---@type LazyPluginSpec
 return {
 	"williamboman/mason.nvim",
+	version = "v2.0.0",
 	cmd = "Mason",
 	--- @module "mason"
 	--- @type MasonSettings

@@ -2,6 +2,7 @@
 ---@type LazyPluginSpec
 return {
 	"mfussenegger/nvim-lint",
+	version = "9dfb77ef6c5092a19502883c02dc5a02ec648729",
 	event = {
 		"BufReadPre",
 		"BufNewFile",
