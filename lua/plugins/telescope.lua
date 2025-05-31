@@ -34,6 +34,11 @@ return {
 			desc = "Find files tracked by git.",
 		},
 		{
+			"gs",
+			"<cmd>Telescope git_status<cr>",
+			desc = "Git status",
+		},
+		{
 			"<leader>lr",
 			"<cmd>Telescope lsp_references<cr>",
 			desc = "List references of symbol under the cursor.",

@@ -8,8 +8,15 @@ vim.o.shiftwidth = 4
 vim.o.wrap = false
 vim.o.colorcolumn = "120"
 vim.o.signcolumn = "yes:1"
-
 vim.wo.relativenumber = true
+
+--- Code folding
+
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.opt.foldlevel = 99
+
+--- Boxes
 
 -- HACK: Until Telescope and plenary resolve the vim.winborder issue
 vim.keymap.set("n", "K", function()

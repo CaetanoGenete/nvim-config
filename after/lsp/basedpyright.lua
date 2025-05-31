@@ -1,7 +1,5 @@
-local logger = require("utils.log")
-
-if vim.lsp._enabled_configs["ruff"] ~= nil then
-	logger.fmt_info("`ruff` detected, disabling pyright analysis.")
+if require("utils.lsp").lsp_enabled("ruff") then
+	require("utils.log").fmt_info("`ruff` detected, disabling pyright analysis.")
 
 	return {
 		settings = {
@@ -13,6 +11,7 @@ if vim.lsp._enabled_configs["ruff"] ~= nil then
 				},
 			},
 			pyright = {
+				-- Use organizeImports from `ruff`
 				disableOrganizeImports = true,
 			},
 		},
