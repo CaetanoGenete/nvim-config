@@ -3,6 +3,7 @@
 return {
 	"nvim-treesitter/nvim-treesitter",
 	version = "v0.9.3",
+	event = "BufRead",
 	name = "treesitter",
 	build = ":TSUpdate",
 	--- @module "nvim-treesitter"
