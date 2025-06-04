@@ -48,4 +48,32 @@ return {
 			}
 		)
 	),
+	s(
+		{
+			trig = "struct ",
+			snippetType = "autosnippet",
+			desc = "Auto-complete for struct",
+		},
+		fmt(
+			[[
+				struct {name}
+				{{
+					{body}
+				}};
+			]],
+			{
+				name = i(1, "<name>"),
+				body = i(2, "<body>"),
+			}
+		)
+	),
+	s({
+		trig = "template<",
+		snippetType = "autosnippet",
+		desc = "Auto-complete template function/class declaration",
+	}, {
+		t("template<"),
+		i(1, "Args"),
+		t(">"),
+	}),
 }

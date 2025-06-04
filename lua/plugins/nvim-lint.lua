@@ -2,7 +2,7 @@
 ---@type LazyPluginSpec
 return {
 	"mfussenegger/nvim-lint",
-	version = "9dfb77ef6c5092a19502883c02dc5a02ec648729",
+	commit = "b47cbb249351873e3a571751c3fb66ed6369852f",
 	event = {
 		"BufReadPre",
 		"BufNewFile",

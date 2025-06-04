@@ -7,6 +7,18 @@ return {
 		"nvim-lua/plenary.nvim",
 	},
 	cmd = "Telescope",
+	opts = {
+		defaults = {
+			mappings = {
+				i = {
+					["<C-y>"] = function(_)
+						local entry = require("telescope.actions.state").get_selected_entry()
+						vim.fn.setreg('"0', entry[1])
+					end,
+				},
+			},
+		},
+	},
 	keys = {
 		{
 			"<leader>fc",
