@@ -5,7 +5,7 @@ require("config.editor")
 --- @type LazyPluginSpec
 return {
 	"saghen/blink.cmp",
-	version = "v1.1.1",
+	version = "v1.4.1",
 	event = "InsertEnter",
 	--- @module 'blink.cmp'
 	--- @type blink.cmp.Config

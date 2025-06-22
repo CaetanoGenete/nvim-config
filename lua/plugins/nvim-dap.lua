@@ -76,6 +76,9 @@ return {
 			require("dap").run_to_cursor()
 		end)
 
+		-- Custom adapters
+		require("config.dap.python_adapter")
+
 		-- Lazy config loading
 		require("dap").providers.configs["lazy-dap-configs"] = load_config
 	end,
