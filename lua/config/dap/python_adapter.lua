@@ -5,25 +5,24 @@ local function windows()
 	return vim.fn.has("win32") == 1
 end
 
----@param venv_path string
----@param w boolean?
+---@param venv_path string The directory to the virtual environment
+---@param w? boolean If `true`, on windows, find `pythonw.exe` instead of `python.exe`. Defaults to false
 ---@return string|nil
 local function get_python_exe(venv_path, w)
 	if not venv_path then
 		return nil
 	end
 
-	local exec_name = ""
-	if w then
-		exec_name = "pythonw"
-	else
-		exec_name = "python"
-	end
-
 	if windows() then
-		return vim.fs.joinpath(venv_path, "Scripts", exec_name .. ".exe")
+		local executable = ""
+		if w then
+			executable = "pythonw.exe"
+		else
+			executable = "python.exe"
+		end
+		return vim.fs.joinpath(venv_path, "Scripts", executable)
 	end
-	return vim.fs.joinpath(venv_path, "bin", exec_name)
+	return vim.fs.joinpath(venv_path, "bin", "python")
 end
 
 ---Looks for python executable in the activated virtual environment.

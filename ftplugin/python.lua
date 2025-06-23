@@ -39,7 +39,7 @@ local function pytest_path_at_cursor()
 	return table.concat(vim.fn.reverse(path), "::")
 end
 
-vim.api.nvim_buf_create_user_command(0, "DebugTest", function()
+local function debug_test_under_cursor()
 	local buffer_path = vim.api.nvim_buf_get_name(0)
 	local pytest_path = pytest_path_at_cursor()
 
@@ -56,4 +56,12 @@ vim.api.nvim_buf_create_user_command(0, "DebugTest", function()
 		args = { "-s", buffer_path .. "::" .. pytest_path },
 	}
 	require("dap").run(config)
+end
+
+vim.api.nvim_buf_create_user_command(0, "DebugTest", function()
+	debug_test_under_cursor()
 end, { desc = "Execute function under cursor using `pytest`, using a configured debugger." })
+
+vim.keymap.set("n", "<leader>dt", function()
+	debug_test_under_cursor()
+end, { buffer = 0 })
