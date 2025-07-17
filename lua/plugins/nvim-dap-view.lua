@@ -18,7 +18,7 @@ return {
 		{
 			"<leader>dv",
 			function()
-				require("dap-view").open()
+				require("dap-view").toggle(true)
 			end,
 			desc = "Opens nvim-dap-viw windows",
 		},
