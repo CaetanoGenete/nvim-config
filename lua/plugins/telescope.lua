@@ -31,6 +31,13 @@ return {
 			desc = "Find files (rooted at neovim config dir).",
 		},
 		{
+			"<leader>le",
+			function()
+				require("utils.python").entry_points_picker()
+			end,
+			desc = "Find python entry-points",
+		},
+		{
 			"<leader>ff",
 			"<cmd>Telescope find_files<cr>",
 			desc = "Find files (root dir).",

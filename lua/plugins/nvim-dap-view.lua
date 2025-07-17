@@ -10,6 +10,18 @@ return {
 		winbar = {
 			sections = { "watches", "scopes", "exceptions", "breakpoints", "threads", "repl", "console" },
 		},
+		windows = {
+			position = "right",
+		},
+	},
+	keys = {
+		{
+			"<leader>dv",
+			function()
+				require("dap-view").open()
+			end,
+			desc = "Opens nvim-dap-viw windows",
+		},
 	},
 	config = function(_, opts)
 		local dap = require("dap")
@@ -23,16 +35,6 @@ return {
 		for _, listener in ipairs(open_listeners) do
 			listener["dav-view-config"] = function()
 				dap_view.open()
-			end
-		end
-
-		local close_listeners = {
-			dap.listeners.before.event_terminated,
-			dap.listeners.before.event_exited,
-		}
-		for _, listener in ipairs(close_listeners) do
-			listener["dav-view-config"] = function()
-				dap_view.close()
 			end
 		end
 	end,

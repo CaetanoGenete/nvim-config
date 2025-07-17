@@ -28,10 +28,6 @@ vim.diagnostic.config({
 	float = { border = BORDER_STYLE },
 })
 
---- Netrw
-
-vim.g.netrw_bufsettings = "noma nomod nonu nobl nowrap ro"
-
 --- Symbols
 
 local sign = vim.fn.sign_define

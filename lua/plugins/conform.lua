@@ -35,8 +35,18 @@ return {
 			prettier = {
 				prepend_args = { "--prose-wrap", "always" },
 			},
+			injected = {
+				options = {
+					lang_to_ft = {
+						latex = "tex",
+					},
+					lang_to_ext = {
+						latex = "tex",
+					},
+				},
+			},
 		},
-		format_on_save = function(bufnr)
+		format_after_save = function(bufnr)
 			if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
 				return
 			end
@@ -44,6 +54,7 @@ return {
 			return {
 				timeout_ms = 2000,
 				lsp_format = "fallback",
+				async = true,
 			}
 		end,
 	},
