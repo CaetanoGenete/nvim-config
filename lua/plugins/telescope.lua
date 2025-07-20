@@ -13,7 +13,11 @@ return {
 				i = {
 					["<C-y>"] = function(_)
 						local entry = require("telescope.actions.state").get_selected_entry()
-						vim.fn.setreg('"0', entry[1])
+						local result = entry[1]
+
+						require("telescope.utils").notify("yank-entry", { msg = result, level = "INFO" })
+
+						vim.fn.setreg('"0', result)
 					end,
 				},
 			},
@@ -33,7 +37,7 @@ return {
 		{
 			"<leader>le",
 			function()
-				require("utils.python").entry_points_picker()
+				require("utils.python.entry_points").picker()
 			end,
 			desc = "Find python entry-points",
 		},
