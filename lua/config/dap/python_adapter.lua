@@ -55,9 +55,7 @@ end
 
 local enrich_config = function(config, on_config)
 	if not config.pythonPath and not config.python then
-		local path = get_python_path() or "python"
-		vim.notify("Using python executable: " .. path)
-		config.pythonPath = path
+		config.pythonPath = get_python_path() or "python"
 	end
 
 	if not config.console then

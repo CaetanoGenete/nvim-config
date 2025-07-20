@@ -66,27 +66,34 @@ return {
 		},
 	},
 	config = function()
+		local dap = require("dap")
+
 		-- Keymaps
 		vim.keymap.set("n", "<F1>", function()
-			require("dap").continue({ new = false })
+			dap.continue({ new = false })
 		end)
 		vim.keymap.set("n", "<F2>", function()
-			require("dap").step_into()
+			dap.step_into()
 		end)
 		vim.keymap.set("n", "<F3>", function()
-			require("dap").step_over()
+			dap.step_over()
 		end)
 		vim.keymap.set("n", "<F4>", function()
-			require("dap").step_out()
+			dap.step_out()
 		end)
 		vim.keymap.set("n", "<F5>", function()
-			require("dap").run_to_cursor()
+			dap.run_to_cursor()
 		end)
 
 		-- Custom adapters
 		require("config.dap.python_adapter")
 
 		-- Lazy config loading
-		require("dap").providers.configs["lazy-dap-configs"] = load_config
+		dap.providers.configs["lazy-dap-configs"] = load_config
+
+		dap.listeners.on_config["my-config"] = function(config)
+			vim.notify("Launching debug session: " .. config.name)
+			return config
+		end
 	end,
 }

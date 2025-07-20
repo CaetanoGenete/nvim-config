@@ -1,6 +1,6 @@
 return {
 	type = "python",
 	request = "launch",
-	name = "Launch file",
+	name = "Launch python file",
 	program = "${file}",
 }
