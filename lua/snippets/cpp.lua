@@ -31,7 +31,7 @@ return {
 			[[
 				#ifndef {path}
 				#define {path}
-				
+
 				namespace {namespace} {{
 					{code}
 				}} // namespace {namespace}

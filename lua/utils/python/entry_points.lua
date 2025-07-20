@@ -14,7 +14,7 @@ local function _invoke_script(script, args)
 		process_args = vim.fn.extend(process_args, args)
 	end
 
-	local result = vim.system(process_args):wait()
+	local result = vim.system(process_args, { text = true, timeout = 5000 }):wait()
 	assert(result.code == 0, "Python subprocess failed! " .. result.stderr)
 	return result.stdout
 end
@@ -69,9 +69,9 @@ local function entry_point_location_ts(module, attr)
 	local file_path = _invoke_script("find_entry_point_origin.py", { module })
 	file_path = vim.fs.normalize(file_path)
 
-	local file, message = io.open(file_path, "r")
+	local file, errmsg = io.open(file_path, "r")
 	if not file then
-		error(("Failed: `%s`"):format(message))
+		error(("Failed: `%s`"):format(errmsg))
 	end
 	local file_content = file:read("*a")
 
