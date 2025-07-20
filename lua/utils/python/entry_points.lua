@@ -1,5 +1,8 @@
 local M = {}
 
+-- For highlighting purposes
+local ns_previewer = vim.api.nvim_create_namespace("telescope.previewers")
+
 ---@param script string The script to invoke.
 ---@param args string[]? Additional args to pass to the script, or nil if none.
 ---@return string
@@ -68,7 +71,7 @@ local function entry_point_location_ts(module, attr)
 
 	local file, message = io.open(file_path, "r")
 	if not file then
-		error("Failed: `" .. message .. "`")
+		error(("Failed: `%s`"):format(message))
 	end
 	local file_content = file:read("*a")
 
@@ -81,7 +84,7 @@ local function entry_point_location_ts(module, attr)
 	local last_match = -1
 	for _, node, _, _ in parsed_ts_query:iter_captures(root, file_content) do
 		local row, _, _, _ = node:range()
-		last_match = vim.fn.max({ last_match, row + 1 })
+		last_match = math.max(last_match, row + 1)
 	end
 
 	assert(last_match ~= -1, "Could not find a match!")
@@ -135,13 +138,16 @@ end
 ---Defaults to `⎸`.
 ---@field group_separator string?
 ---If empty, pick from all available groups. Otherwise show only the provided
----`group`. Defaults to `{}`.
+---`group`. Defaults to `nil`.
 ---@field group string?
+---Additional telescope options.
+---@field [string] any
 
 ---@type EntryPointPickerOptions
 local default_ep_picker_config = {
 	group_max_width = 12,
 	group_separator = "⎸",
+	preview = {},
 }
 
 ---Telescope picker (with preview) for python entry-points.
@@ -155,19 +161,19 @@ M.picker = function(opts)
 	local group_width = 0
 	for _, ep in ipairs(eps) do
 		local len = #ep.group
-		if len >= group_width then
-			if len >= opts.group_max_width then
-				group_width = opts.group_max_width
-				break
-			end
-			group_width = len
+		if len >= opts.group_max_width then
+			group_width = opts.group_max_width
+			break
 		end
+		group_width = math.max(group_width, len)
 	end
 
 	local conf = require("telescope.config").values
 	local picker = require("telescope.pickers")
 	local finders = require("telescope.finders")
+	local previewers = require("telescope.previewers")
 	local entry_display = require("telescope.pickers.entry_display")
+	local putils = require("telescope.previewers.utils")
 
 	local displayer = entry_display.create({
 		separator = opts.group_separator,
@@ -184,30 +190,66 @@ M.picker = function(opts)
 		})
 	end
 
-	vim.print(conf.grep_previewer(opts))
+	local jump_to_line = function(self, bufnr, lnum)
+		pcall(vim.api.nvim_buf_clear_namespace, bufnr, ns_previewer, 0, -1)
+		if lnum and lnum > 0 then
+			---@diagnostic disable-next-line: deprecated
+			pcall(vim.api.nvim_buf_add_highlight, bufnr, ns_previewer, "TelescopePreviewLine", lnum - 1, 0, -1)
+			pcall(vim.api.nvim_win_set_cursor, self.state.winid, { lnum, 0 })
+			vim.api.nvim_buf_call(bufnr, function()
+				vim.cmd("norm! zz")
+			end)
+		end
+	end
+
+	local previewer = previewers.new_buffer_previewer({
+		title = "File Preview",
+		define_preview = function(self, entry, _)
+			local ok, filename, lnum = pcall(entry_point_location, entry.value)
+			if not ok then
+				vim.schedule_wrap(putils.set_preview_message)(
+					self.state.bufnr,
+					self.state.winid,
+					"Cannot find entrypoint!",
+					opts.preview.msg_bg_fillchar
+				)
+				return
+			end
+
+			entry.filename = filename
+			entry.lnum = lnum
+
+			conf.buffer_previewer_maker(filename, self.state.bufnr, {
+				bufname = self.state.bufname,
+				winid = self.state.winid,
+				preview = opts.preview,
+				---@param bufnr integer
+				callback = function(bufnr)
+					jump_to_line(self, bufnr, lnum)
+				end,
+				file_encoding = opts.file_encoding,
+			})
+		end,
+	})
+
+	local finder = finders.new_table({
+		results = eps,
+		---@param item EntryPointDef
+		entry_maker = function(item)
+			return {
+				value = item,
+				ordinal = item.name,
+				display = display,
+			}
+		end,
+	})
 
 	picker
 		.new(opts, {
 			prompt_title = "Entry points",
-			-- previewer = conf.grep_previewer(opts),
-			previewer = require("telescope.previewers").cat,
+			previewer = previewer,
 			sorter = conf.generic_sorter(opts),
-			finder = finders.new_table({
-				results = eps,
-				---@param item EntryPointDef
-				entry_maker = function(item)
-					local ok, filename, lnum = pcall(entry_point_location, item)
-					if ok then
-						return {
-							value = item,
-							ordinal = item.name,
-							display = display,
-							filename = filename,
-							lnum = lnum,
-						}
-					end
-				end,
-			}),
+			finder = finder,
 		})
 		:find()
 end
