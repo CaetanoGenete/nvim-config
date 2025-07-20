@@ -14,9 +14,8 @@ return {
 					["<C-y>"] = function(_)
 						local entry = require("telescope.actions.state").get_selected_entry()
 						local result = entry[1]
-
-						require("telescope.utils").notify("yank-entry", { msg = result, level = "INFO" })
-
+						-- Note: using input here to force notification, otherwise.
+						vim.fn.input("Yanked: '" .. result .. "'\nPress Enter to continue...")
 						vim.fn.setreg('"0', result)
 					end,
 				},

@@ -202,11 +202,30 @@ M.picker = function(opts)
 		end
 	end
 
+	-- Cache fetched entry-point locations during this current session.
+	local cached_locs = {}
+
 	local previewer = previewers.new_buffer_previewer({
 		title = "File Preview",
 		define_preview = function(self, entry, _)
-			local ok, filename, lnum = pcall(entry_point_location, entry.value)
-			if not ok then
+			local cache_key = entry.value.group .. ":" .. entry.value.name
+			local cached_loc = cached_locs[cache_key]
+
+			if cached_loc == nil then
+				local ok, filename, lnum = pcall(entry_point_location, entry.value)
+				if ok then
+					cached_loc = {
+						filename = filename,
+						lnum = lnum,
+					}
+				else
+					cached_loc = {}
+				end
+
+				cached_locs[cache_key] = cached_loc
+			end
+
+			if cached_loc.filename == nil then
 				vim.schedule_wrap(putils.set_preview_message)(
 					self.state.bufnr,
 					self.state.winid,
@@ -216,16 +235,16 @@ M.picker = function(opts)
 				return
 			end
 
-			entry.filename = filename
-			entry.lnum = lnum
+			entry.filename = cached_loc.filename
+			entry.lnum = cached_loc.lnum
 
-			conf.buffer_previewer_maker(filename, self.state.bufnr, {
+			conf.buffer_previewer_maker(entry.filename, self.state.bufnr, {
 				bufname = self.state.bufname,
 				winid = self.state.winid,
 				preview = opts.preview,
 				---@param bufnr integer
 				callback = function(bufnr)
-					jump_to_line(self, bufnr, lnum)
+					jump_to_line(self, bufnr, entry.lnum)
 				end,
 				file_encoding = opts.file_encoding,
 			})
