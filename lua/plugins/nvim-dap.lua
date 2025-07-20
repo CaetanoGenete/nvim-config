@@ -57,6 +57,13 @@ return {
 			end,
 			desc = "Toggle breakpoint at cursor.",
 		},
+		{
+			"<leader>dl",
+			function()
+				require("dap").run_last()
+			end,
+			desc = "Run using previously executing config.",
+		},
 	},
 	config = function()
 		-- Keymaps
