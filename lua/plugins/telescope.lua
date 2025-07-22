@@ -36,7 +36,7 @@ return {
 		{
 			"<leader>le",
 			function()
-				require("utils.python.entry_points").picker()
+				require("utils.python.entry_points").find_entrypoints()
 			end,
 			desc = "Find python entry-points",
 		},

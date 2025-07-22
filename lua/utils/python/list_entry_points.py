@@ -13,10 +13,15 @@ class EntryPoint(TypedDict):
 
 
 if __name__ == "__main__":
+    group = sys.argv[1] if len(sys.argv) > 1 else None
+
     if sys.version_info >= (3, 10):
-        eps = metadata.entry_points()
+        eps = metadata.entry_points(group=group) if group else metadata.entry_points()
     else:
-        eps = chain(*metadata.entry_points().values())
+        if group:
+            eps = metadata.entry_points()[group]
+        else:
+            eps = chain(*metadata.entry_points().values())
 
     result = [
         EntryPoint(
