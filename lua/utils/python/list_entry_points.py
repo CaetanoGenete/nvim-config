@@ -19,7 +19,7 @@ if __name__ == "__main__":
         eps = metadata.entry_points(group=group) if group else metadata.entry_points()
     else:
         if group:
-            eps = metadata.entry_points()[group]
+            eps = metadata.entry_points().get(group, [])
         else:
             eps = chain(*metadata.entry_points().values())
 

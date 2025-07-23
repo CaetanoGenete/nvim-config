@@ -9,8 +9,7 @@ local wrap = function(callback_fn, exp_args)
 			error("This function only accepts `" .. exp_args .. "` but `" .. nargs .. "` passed!")
 		end
 
-		local coro = coroutine.running()
-		assert(coro ~= nil, "Async function called outside of coroutine!")
+		local coro = assert(coroutine.running(), "Async function called outside of coroutine!")
 
 		local callback_completed = false
 		local callback_ret = nil
@@ -28,16 +27,12 @@ local wrap = function(callback_fn, exp_args)
 		callback_fn(unpack(forward_args))
 
 		if not callback_completed then
-			-- If we are here, then `f` must not have called the callback yet, so it
-			-- will do so asynchronously.
-			-- Yield control and wait for the callback to resume it.
+			-- If we are here, then callback must not have been called yet, so it
+			-- will do so asynchronously. Yield control and wait for the callback to
+			-- resume it.
 			coroutine.yield()
 		end
-
-		if callback_ret == nil then
-			return nil
-		end
-		return unpack(callback_ret)
+		return unpack(callback_ret or {})
 	end
 
 	return async_fn
@@ -78,47 +73,59 @@ M.fs_read = wrap(vim.uv.fs_read, 3)
 ---@type fun(fd: integer):string?,UVStat?
 M.fs_stat = wrap(vim.uv.fs_fstat, 1)
 
+---@async
+---@type fun(timer, interval: integer, repeat: integer)
+local timer_start = wrap(vim.uv.timer_start, 3)
+
+---Pause execution for `duration` milliseconds.
+---@param duration integer in milliseconds.
+M.sleep = function(duration)
+	local timer = vim.uv.new_timer()
+	timer_start(timer, duration, 0)
+	timer:stop()
+	timer:close()
+end
+
 --- Executes an async function. This is effectively a fire and forget.
----@param async_function fun(...):...
+---@param async_function fun(...): ...
 M.run = function(async_function, ...)
 	coroutine.resume(coroutine.create(async_function), ...)
 end
 
---- Executes an async function. If the returned coroutine is discarded, this is
---- effectively a fire and forget.
----@generic T
----@param async_function fun(...): T
----@param cb fun(success: boolean, result: T?)
-M.run_callback = function(async_function, cb, ...)
+--- Schedules an async function for execution.
+---@generic R
+---@param async_function fun(...): R
+---@param callback fun(success: boolean, result: R?)
+M.run_callback = function(async_function, callback, ...)
 	M.run(function(...)
 		local ok, result = pcall(async_function, ...)
-		cb(ok, result)
+		callback(ok, result)
 	end, ...)
 end
 
 ---Returns the contents of the file at `path`.
 ---@async
 ---@param path string
----@return string?, string?
+---@return string? content, string? errmsg
 M.read_file = function(path)
-	local err, fd = M.fs_open(path, "r", 438)
-	if err or fd == nil then
-		return err, nil
+	local open_err, fd = M.fs_open(path, "r", 438)
+	if open_err or fd == nil then
+		return nil, open_err
 	end
 
 	local stat_err, stat = M.fs_stat(fd)
 	if stat_err or stat == nil then
 		M.fs_close(fd)
-		return stat_err, nil
+		return nil, stat_err
 	end
 
 	local read_err, data = M.fs_read(fd, stat.size, 0)
 	if read_err or data == nil then
 		M.fs_close(fd)
-		return read_err, nil
+		return nil, read_err
 	end
 
-	return nil, data
+	return data, nil
 end
 
 return M

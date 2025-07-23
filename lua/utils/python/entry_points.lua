@@ -12,22 +12,22 @@ local ns_previewer = vim.api.nvim_create_namespace("telescope.previewers")
 
 local M = {}
 
----@async
 ---@param script string The script to invoke.
----@param args string[]? Additional args to pass to the script, or `nil` if none.
----@return string
-local function ainvoke_script(script, args)
+---@return fun(...: string): ...: string
+local function make_ainvoker(script)
 	local path = vim.fs.joinpath(vim.fn.stdpath("config"), "lua/utils/python", script)
 
-	local process_args = { "python", path }
-	for _, arg in ipairs(args or {}) do
-		table.insert(process_args, arg)
+	---@async
+	return function(...)
+		local result = async.system({ "python", path, ... }, { text = true, timeout = 5000 })
+		assert(result.code == 0, "Python subprocess failed! " .. result.stderr)
+		return result.stdout
 	end
-
-	local result = async.system(process_args, { text = true, timeout = 5000 })
-	assert(result.code == 0, "Python subprocess failed! " .. result.stderr)
-	return result.stdout
 end
+
+local alist_entry_points = make_ainvoker("list_entry_points.py")
+local afind_entry_point = make_ainvoker("find_entry_point.py")
+local afind_entry_point_origin = make_ainvoker("find_entry_point_origin.py")
 
 ---@class EntryPointDef
 ---@field name string
@@ -39,13 +39,13 @@ end
 ---@async
 ---@param group string? If non-nil, only selects entry-points in this group.
 ---@return EntryPointDef[]
-M.list = function(group)
+M.aentrypoints = function(group)
 	local args = {}
 	if group ~= nil then
 		args = { group }
 	end
 
-	local result = ainvoke_script("list_entry_points.py", args)
+	local result = alist_entry_points(unpack(args))
 	return vim.json.decode(result)
 end
 
@@ -70,25 +70,21 @@ local root_attr_query = [[
 ---@param attr string?
 ---@return string, integer
 local function aentry_point_location_ts(module, attr)
-	assert(
-		attr == nil or vim.fn.count(".", attr) == 0,
-		"TS implementation can only be used with module attributes, use importlib instead."
-	)
+	if attr == nil or attr:find(".", nil, true) then
+		error("TS implementation can only be used with module attributes, use importlib instead.")
+	end
 
 	-- It still necessary to use importlib to map the module path to a system
 	-- path (where possible). However, this does less module loading and
 	-- dependency resolution than loading the entry-point.
-	local file_path = ainvoke_script("find_entry_point_origin.py", { module })
-
+	local file_path = afind_entry_point_origin(module)
 	file_path = vim.fs.normalize(file_path)
+
 	local lnum = 0
 
 	-- If `attr` is None, then entry-point invokes module.
 	if attr then
-		local errmsg, file_content = async.read_file(file_path)
-		if not file_content then
-			error(errmsg)
-		end
+		local file_content = assert(async.read_file(file_path))
 
 		local ts_query = string.format(root_attr_query, attr)
 		local parsed_ts_query = vim.treesitter.query.parse("python", ts_query)
@@ -121,24 +117,26 @@ end
 ---@param group string
 ---@return EntryPoint
 local aentry_point_location_importlib = function(name, group)
-	local result = ainvoke_script("find_entry_point.py", { name, group })
+	local result = afind_entry_point(name, group)
 	return vim.json.decode(result)
 end
 
 ---@async
 ---@param def EntryPointDef
 local function aentry_point_location(def)
-	-- Try to use tree-sitter implementation first. And fallback to importlib if
-	-- this fails.
+	-- Try to use tree-sitter implementation first, then fallback to importlib
+	-- upon failure.
 	--
 	-- There are a few reasons for this:
-	-- 1. importlib can fail despite the entry point being valid. If, for
-	-- example, a dependency is not available, importlib will fail without
-	-- returning the location of the entry-point.
+	--
+	-- 1. importlib can fail despite the entry-point being valid. If, for
+	--    example, a dependency is not available, importlib will fail without
+	--    returning the location of the entry-point.
+	--
 	-- 2. importlib will not return the exact location of an entry-point if it is
-	-- not a function. Take for example `ep = main`, where `main` is a function.
-	-- With the current importlib implementation, if `ep` is defined as the
-	-- entry-point, the location will resolve to the definition of `main`.
+	--    not a function. Take for example `ep = main`, where `main` is a function.
+	--    With the current importlib implementation, if `ep` is defined as the
+	--    entry-point, the location will resolve to the definition of `main`.
 	--
 	-- None of these issues appear when fetching the entry-point using
 	-- tree-sitter, as no dependency resolution occurs. However, it cannot follow
@@ -146,6 +144,8 @@ local function aentry_point_location(def)
 	local ok, result, loc = pcall(aentry_point_location_ts, def.module, def.attr)
 	if ok then
 		return result, loc
+	else
+		vim.print(result)
 	end
 
 	local ep = aentry_point_location_importlib(def.name, def.group)
@@ -160,6 +160,9 @@ end
 ---If empty, pick from all available groups. Otherwise show only the provided
 ---`group`. Defaults to `nil`.
 ---@field group string?
+---The duration in milliseconds for which an entry should be selected, before
+---the entry-point location is fetched. Defaults to `20`.
+---@field debounce_duration_ms integer?
 ---Additional telescope options.
 ---@field [string] any
 
@@ -167,6 +170,7 @@ end
 local default_ep_picker_config = {
 	group_max_width = 12,
 	group_separator = "⎸",
+	debounce_duration_ms = 50,
 	preview = {},
 }
 
@@ -277,7 +281,17 @@ local function apick(eps, opts)
 			if entry_state == "done" then
 				render_entry(self.state, entry, opts)
 			else
+				---@param curr string
 				async.run(function(curr)
+					-- Debounce helps prevent freezing/blocking if navigating too fast.
+					-- E.g. holding down arrow keys.
+					if opts.debounce_duration_ms > 0 then
+						async.sleep(opts.debounce_duration_ms)
+						if selected ~= curr then
+							return
+						end
+					end
+
 					entry_states[curr] = "pending"
 					local ok, filename, lnum = pcall(aentry_point_location, entry.value)
 					entry_states[curr] = "done"
@@ -327,9 +341,12 @@ M.find_entrypoints = function(opts)
 	---@type EntryPointPickerOptions
 	opts = vim.tbl_extend("force", default_ep_picker_config, opts or {})
 
-	async.run_callback(M.list, function(ok, eps)
+	vim.notify("Fetching entry-points from environment...", vim.log.levels.INFO)
+	async.run_callback(M.aentrypoints, function(ok, eps)
 		if ok then
 			apick(eps, opts)
+		else
+			vim.notify("An error occured while getting entry-points!", vim.log.levels.ERROR)
 		end
 	end, opts.group)
 end
