@@ -14,7 +14,7 @@ local M = {}
 
 ---@param script string The script to invoke.
 ---@return fun(...: string): ...: string
-local function make_ainvoker(script)
+local function make_ascript(script)
 	local path = vim.fs.joinpath(vim.fn.stdpath("config"), "lua/utils/python", script)
 
 	---@async
@@ -25,15 +25,14 @@ local function make_ainvoker(script)
 	end
 end
 
-local alist_entry_points = make_ainvoker("list_entry_points.py")
-local afind_entry_point = make_ainvoker("find_entry_point.py")
-local afind_entry_point_origin = make_ainvoker("find_entry_point_origin.py")
+local alist_entry_points = make_ascript("list_entry_points.py")
+local afind_entry_point = make_ascript("find_entry_point.py")
+local afind_entry_point_origin = make_ascript("find_entry_point_origin.py")
 
 ---@class EntryPointDef
 ---@field name string
 ---@field group string
----@field module string
----@field attr string
+---@field value string[]
 
 ---Returns entry-points available in the environment.
 ---@async
@@ -88,8 +87,8 @@ local function aentry_point_location_ts(module, attr)
 
 		local ts_query = string.format(root_attr_query, attr)
 		local parsed_ts_query = vim.treesitter.query.parse("python", ts_query)
-		local parser = vim.treesitter.get_string_parser(file_content, "python")
 
+		local parser = vim.treesitter.get_string_parser(file_content, "python")
 		local root = parser:parse()[1]:root()
 
 		local last_match = -1
@@ -141,11 +140,9 @@ local function aentry_point_location(def)
 	-- None of these issues appear when fetching the entry-point using
 	-- tree-sitter, as no dependency resolution occurs. However, it cannot follow
 	-- chains of attributes, such as `a.b.c`.
-	local ok, result, loc = pcall(aentry_point_location_ts, def.module, def.attr)
+	local ok, result, loc = pcall(aentry_point_location_ts, unpack(def.value))
 	if ok then
 		return result, loc
-	else
-		vim.print(result)
 	end
 
 	local ep = aentry_point_location_importlib(def.name, def.group)
@@ -211,7 +208,7 @@ end
 ---@param entry EntryPointEntry
 ---@param opts EntryPointPickerOptions
 local function render_entry(state, entry, opts)
-	if entry.filename ~= nil then
+	if entry.filename then
 		conf.buffer_previewer_maker(entry.filename, state.bufnr, {
 			bufname = state.bufname,
 			winid = state.winid,

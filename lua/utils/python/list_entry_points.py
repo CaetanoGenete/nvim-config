@@ -2,14 +2,13 @@ from importlib import metadata
 from itertools import chain
 import json
 import sys
-from typing import TypedDict
+from typing import List, TypedDict
 
 
 class EntryPoint(TypedDict):
     name: str
     group: str
-    module: str
-    attr: str
+    value: List[str]
 
 
 if __name__ == "__main__":
@@ -27,8 +26,7 @@ if __name__ == "__main__":
         EntryPoint(
             name=ep.name,
             group=ep.group,
-            module=ep.value.split(":")[0],
-            attr=ep.value.split(":")[1],
+            value=ep.value.split(":"),
         )
         for ep in eps
     ]
