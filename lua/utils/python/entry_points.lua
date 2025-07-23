@@ -200,7 +200,7 @@ end
 ---@class EntryPointEntry
 ---@field value EntryPointDef
 ---@field ordinal string
----@field displayer fun(...): ...
+---@field displayer fun(...):...
 ---@field filename string?
 ---@field lnum integer?
 
@@ -343,7 +343,7 @@ M.find_entrypoints = function(opts)
 		if ok then
 			apick(eps, opts)
 		else
-			vim.notify("An error occured while getting entry-points!", vim.log.levels.ERROR)
+			vim.schedule_wrap(vim.notify)("An error occured while getting entry-points!", vim.log.levels.ERROR)
 		end
 	end, opts.group)
 end
