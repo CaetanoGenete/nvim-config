@@ -285,7 +285,6 @@ local function apick(eps, opts)
 			if entry.state == "done" then
 				render_entry(self.state, entry, opts)
 			else
-				entry.state = "pending"
 				async.run(function()
 					-- Debounce helps prevent freezing/blocking if navigating too fast.
 					-- E.g. holding down arrow keys.
@@ -296,6 +295,7 @@ local function apick(eps, opts)
 						end
 					end
 
+					entry.state = "pending"
 					local ok, filename, lnum = pcall(aentry_point_location, entry.value)
 					entry.state = "done"
 
