@@ -207,7 +207,7 @@ end
 ---@field value EntryPointDef
 ---@field ordinal string
 ---@field displayer fun(...):...
----@field cache_key string
+---@field state "done"|"pending"|nil
 ---@field filename string?
 ---@field lnum integer?
 
@@ -265,45 +265,39 @@ local function apick(eps, opts)
 		})
 	end
 
-	---Cache fetched entry-point locations during this picker session.
-	---@type table<string, "done"|"pending"|nil>
-	local entry_states = {}
+	-- The currently selected entry
 	local selected = nil
 
 	local previewer = previewers.new_buffer_previewer({
 		title = "Entry-point Preview",
 		teardown = function()
-			-- prevent async job from rendering if previewer has closed
+			-- prevent async job from rendering if the previewer has closed
 			selected = nil
 		end,
 		---@param entry EntryPointEntry
 		define_preview = function(self, entry, _)
-			selected = entry.cache_key
+			selected = entry
 
-			local entry_state = entry_states[selected]
-			if entry_state == "pending" then
+			if entry.state == "pending" then
 				return
 			end
 
-			if entry_state == "done" then
+			if entry.state == "done" then
 				render_entry(self.state, entry, opts)
 			else
+				entry.state = "pending"
 				async.run(function()
-					local curr = entry.cache_key
-
 					-- Debounce helps prevent freezing/blocking if navigating too fast.
 					-- E.g. holding down arrow keys.
 					if opts.debounce_duration_ms > 0 then
 						async.sleep(opts.debounce_duration_ms)
-						if selected ~= curr then
+						if selected ~= entry then
 							return
 						end
 					end
 
-					entry_states[curr] = "pending"
 					local ok, filename, lnum = pcall(aentry_point_location, entry.value)
-					async.sleep(10000)
-					entry_states[curr] = "done"
+					entry.state = "done"
 
 					if ok then
 						entry.filename = filename
@@ -311,7 +305,7 @@ local function apick(eps, opts)
 					end
 
 					-- Avoid rendering if the user has selected something else in the meantime
-					if selected == curr then
+					if selected == entry then
 						render_entry(self.state, entry, opts)
 					end
 				end)
@@ -324,15 +318,15 @@ local function apick(eps, opts)
 		---@param item EntryPointDef
 		---@return EntryPointEntry
 		entry_maker = function(item)
-			local cache_key = item.group .. " " .. item.name
 			return {
 				value = item,
-				ordinal = cache_key,
+				ordinal = item.group .. " " .. item.name,
 				display = display,
-				cache_key = cache_key,
 			}
 		end,
 	})
+
+	local select_timeout_s = opts.select_timeout_ms / 1000
 
 	local attach_mappings = function()
 		---@diagnostic disable-next-line: undefined-field
@@ -342,9 +336,9 @@ local function apick(eps, opts)
 
 			local start_time = os.clock()
 			-- Block for for `timeout` or until fetching entry-point finishes.
-			while entry_states[entry.cache_key] == "pending" do
-				vim.notify("Looking for entry-point's origin...")
-				if (os.clock() - start_time) > opts.select_timeout_ms / 1000 then
+			while entry.state == "pending" do
+				vim.notify("Looking for entry-point's origin, please wait...")
+				if (os.clock() - start_time) > select_timeout_s then
 					break
 				end
 				vim.cmd("sleep 10m")
@@ -355,12 +349,10 @@ local function apick(eps, opts)
 				return
 			end
 
-			local state = entry_states[entry.cache_key]
-
 			local errmsg = ""
-			if state == "pending" then
+			if entry.state == "pending" then
 				errmsg = "Entry-point took too long to find! Try again, or skip."
-			elseif state == "done" then
+			elseif entry.state == "done" then
 				errmsg = "Entry-point origin could not be found!"
 			else
 				errmsg = "Something went wrong!"
