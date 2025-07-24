@@ -265,6 +265,10 @@ local function apick(eps, opts)
 
 	local previewer = previewers.new_buffer_previewer({
 		title = "Entry-point Preview",
+		teardown = function()
+			-- prevent async job from rendering if previewer has closed
+			selected = nil
+		end,
 		---@param entry EntryPointEntry
 		define_preview = function(self, entry, _)
 			local cache_key = entry.value.group .. ":" .. entry.value.name
