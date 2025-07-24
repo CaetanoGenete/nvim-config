@@ -366,8 +366,8 @@ local function apick(eps, opts)
 		picker
 			.new(opts, {
 				prompt_title = "Entry points",
-				previewer = previewer,
 				sorter = conf.generic_sorter(opts),
+				previewer = previewer,
 				finder = finder,
 				attach_mappings = attach_mappings,
 			})
@@ -375,20 +375,31 @@ local function apick(eps, opts)
 	end)
 end
 
+---@type fun(msg: string, level:integer?)
+local safe_notify = vim.schedule_wrap(vim.notify)
+
 ---Telescope picker (with preview) for python entry-points.
 ---@param opts EntryPointPickerOptions? picker options.
 M.find_entrypoints = function(opts)
 	---@type EntryPointPickerOptions
 	opts = vim.tbl_extend("force", default_ep_picker_config, opts or {})
 
-	vim.notify("Fetching entry-points from environment...", vim.log.levels.INFO)
-	async.run_callback(M.aentrypoints, function(ok, eps)
-		if ok then
-			apick(eps, opts)
-		else
-			vim.schedule_wrap(vim.notify)("An error occured while getting entry-points!", vim.log.levels.ERROR)
+	local on_endpoints = function(ok, eps)
+		if not ok then
+			safe_notify("An error occured while getting entry-points!", vim.log.levels.ERROR)
+			return
 		end
-	end, opts.group)
+
+		if #eps == 0 then
+			safe_notify("No entry-points found.", vim.log.levels.WARN)
+			return
+		end
+
+		apick(eps, opts)
+	end
+
+	vim.notify("Fetching entry-points from environment...", vim.log.levels.INFO)
+	async.run_callback(M.aentrypoints, on_endpoints, opts.group)
 end
 
 return M
