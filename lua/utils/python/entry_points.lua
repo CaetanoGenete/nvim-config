@@ -5,6 +5,8 @@ local picker = require("telescope.pickers")
 local finders = require("telescope.finders")
 local previewers = require("telescope.previewers")
 local entry_display = require("telescope.pickers.entry_display")
+local action_set = require("telescope.actions.set")
+local action_state = require("telescope.actions.state")
 local putils = require("telescope.previewers.utils")
 
 -- For highlighting purposes
@@ -73,7 +75,7 @@ local function aentry_point_location_ts(module, attr)
 		error("TS implementation can only be used with module attributes, use importlib instead.")
 	end
 
-	-- It still necessary to use importlib to map the module path to a system
+	-- It's still necessary to use importlib to map the module path to a system
 	-- path (where possible). However, this does less module loading and
 	-- dependency resolution than loading the entry-point.
 	local file_path = afind_entry_point_origin(module)
@@ -81,7 +83,7 @@ local function aentry_point_location_ts(module, attr)
 
 	local lnum = 0
 
-	-- If `attr` is None, then entry-point invokes module.
+	-- If `attr` is None, then presumably entry-point invokes module.
 	if attr then
 		local file_content = assert(async.read_file(file_path))
 
@@ -160,6 +162,9 @@ end
 ---The duration in milliseconds for which an entry should be selected, before
 ---the entry-point location is fetched. Defaults to `20`.
 ---@field debounce_duration_ms integer?
+---How long to wait, in milliseconds, for an entry-point to be found once
+---selected. Defaults to `2000`.
+---@field select_timeout_ms integer?
 ---Additional telescope options.
 ---@field [string] any
 
@@ -168,6 +173,7 @@ local default_ep_picker_config = {
 	group_max_width = 12,
 	group_separator = "⎸",
 	debounce_duration_ms = 50,
+	select_timeout_ms = 2000,
 	preview = {},
 }
 
@@ -201,6 +207,7 @@ end
 ---@field value EntryPointDef
 ---@field ordinal string
 ---@field displayer fun(...):...
+---@field cache_key string
 ---@field filename string?
 ---@field lnum integer?
 
@@ -271,10 +278,9 @@ local function apick(eps, opts)
 		end,
 		---@param entry EntryPointEntry
 		define_preview = function(self, entry, _)
-			local cache_key = entry.value.group .. ":" .. entry.value.name
-			selected = cache_key
+			selected = entry.cache_key
 
-			local entry_state = entry_states[cache_key]
+			local entry_state = entry_states[selected]
 			if entry_state == "pending" then
 				return
 			end
@@ -282,8 +288,9 @@ local function apick(eps, opts)
 			if entry_state == "done" then
 				render_entry(self.state, entry, opts)
 			else
-				---@param curr string
-				async.run(function(curr)
+				async.run(function()
+					local curr = entry.cache_key
+
 					-- Debounce helps prevent freezing/blocking if navigating too fast.
 					-- E.g. holding down arrow keys.
 					if opts.debounce_duration_ms > 0 then
@@ -295,6 +302,7 @@ local function apick(eps, opts)
 
 					entry_states[curr] = "pending"
 					local ok, filename, lnum = pcall(aentry_point_location, entry.value)
+					async.sleep(10000)
 					entry_states[curr] = "done"
 
 					if ok then
@@ -306,7 +314,7 @@ local function apick(eps, opts)
 					if selected == curr then
 						render_entry(self.state, entry, opts)
 					end
-				end, cache_key)
+				end)
 			end
 		end,
 	})
@@ -316,13 +324,51 @@ local function apick(eps, opts)
 		---@param item EntryPointDef
 		---@return EntryPointEntry
 		entry_maker = function(item)
+			local cache_key = item.group .. " " .. item.name
 			return {
 				value = item,
-				ordinal = item.name,
+				ordinal = cache_key,
 				display = display,
+				cache_key = cache_key,
 			}
 		end,
 	})
+
+	local attach_mappings = function()
+		---@diagnostic disable-next-line: undefined-field
+		action_set.select:replace(function(prompt_bufnr, type)
+			---@type EntryPointEntry
+			local entry = action_state.get_selected_entry()
+
+			local start_time = os.clock()
+			-- Block for for `timeout` or until fetching entry-point finishes.
+			while entry_states[entry.cache_key] == "pending" do
+				vim.notify("Looking for entry-point's origin...")
+				if (os.clock() - start_time) > opts.select_timeout_ms / 1000 then
+					break
+				end
+				vim.cmd("sleep 10m")
+			end
+
+			if entry.filename ~= nil then
+				action_set.edit(prompt_bufnr, action_state.select_key_to_edit_key(type))
+				return
+			end
+
+			local state = entry_states[entry.cache_key]
+
+			local errmsg = ""
+			if state == "pending" then
+				errmsg = "Entry-point took too long to find! Try again, or skip."
+			elseif state == "done" then
+				errmsg = "Entry-point origin could not be found!"
+			else
+				errmsg = "Something went wrong!"
+			end
+			vim.notify(errmsg, vim.log.levels.ERROR)
+		end)
+		return true
+	end
 
 	vim.schedule(function()
 		picker
@@ -331,6 +377,7 @@ local function apick(eps, opts)
 				previewer = previewer,
 				sorter = conf.generic_sorter(opts),
 				finder = finder,
+				attach_mappings = attach_mappings,
 			})
 			:find()
 	end)
