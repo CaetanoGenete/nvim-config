@@ -50,7 +50,7 @@ M.aentrypoints = function(group)
 	return vim.json.decode(result)
 end
 
-local root_attr_query = [[
+local ROOT_ATTR_QUERY = [[
 	(module
 		[
 			(function_definition
@@ -87,15 +87,15 @@ local function aentry_point_location_ts(module, attr)
 	if attr then
 		local file_content = assert(async.read_file(file_path))
 
-		local ts_query = string.format(root_attr_query, attr)
+		local ts_query = string.format(ROOT_ATTR_QUERY, attr)
 		local parsed_ts_query = vim.treesitter.query.parse("python", ts_query)
 
 		local parser = vim.treesitter.get_string_parser(file_content, "python")
 		local root = parser:parse()[1]:root()
 
 		local last_match = -1
-		for _, node, _, _ in parsed_ts_query:iter_captures(root, file_content) do
-			local row, _, _, _ = node:range()
+		for _, node in parsed_ts_query:iter_captures(root, file_content) do
+			local row = node:range()
 			last_match = math.max(last_match, row + 1)
 		end
 
@@ -169,7 +169,7 @@ end
 ---@field [string] any
 
 ---@type EntryPointPickerOptions
-local default_ep_picker_config = {
+local DEFAULT_EP_PICKER_CONFIG = {
 	group_max_width = 12,
 	group_separator = "⎸",
 	debounce_duration_ms = 50,
@@ -236,10 +236,9 @@ local function render_entry(state, entry, opts)
 	end
 end
 
----@async
 ---@param eps EntryPointDef[]
 ---@param opts EntryPointPickerOptions picker options.
-local function apick(eps, opts)
+local function pick_entrypoint(eps, opts)
 	local group_width = 0
 	for _, ep in ipairs(eps) do
 		local len = #ep.group
@@ -362,40 +361,35 @@ local function apick(eps, opts)
 		return true
 	end
 
-	vim.schedule(function()
-		picker
-			.new(opts, {
-				prompt_title = "Entry points",
-				sorter = conf.generic_sorter(opts),
-				previewer = previewer,
-				finder = finder,
-				attach_mappings = attach_mappings,
-			})
-			:find()
-	end)
+	picker
+		.new(opts, {
+			prompt_title = "Entry points",
+			sorter = conf.generic_sorter(opts),
+			previewer = previewer,
+			finder = finder,
+			attach_mappings = attach_mappings,
+		})
+		:find()
 end
-
----@type fun(msg: string, level:integer?)
-local safe_notify = vim.schedule_wrap(vim.notify)
 
 ---Telescope picker (with preview) for python entry-points.
 ---@param opts EntryPointPickerOptions? picker options.
 M.find_entrypoints = function(opts)
 	---@type EntryPointPickerOptions
-	opts = vim.tbl_extend("force", default_ep_picker_config, opts or {})
+	opts = vim.tbl_extend("force", DEFAULT_EP_PICKER_CONFIG, opts or {})
 
 	local on_endpoints = function(ok, eps)
 		if not ok then
-			safe_notify("An error occured while getting entry-points!", vim.log.levels.ERROR)
+			vim.notify("An error occured while getting entry-points!", vim.log.levels.ERROR)
 			return
 		end
 
 		if #eps == 0 then
-			safe_notify("No entry-points found.", vim.log.levels.WARN)
+			vim.notify("No entry-points found.", vim.log.levels.WARN)
 			return
 		end
 
-		apick(eps, opts)
+		pick_entrypoint(eps, opts)
 	end
 
 	vim.notify("Fetching entry-points from environment...", vim.log.levels.INFO)

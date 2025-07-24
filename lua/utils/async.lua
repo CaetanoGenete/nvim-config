@@ -86,20 +86,24 @@ M.sleep = function(duration)
 	timer:close()
 end
 
---- Executes an async function. This is effectively a fire and forget.
+---Executes an async function.
 ---@param async_function fun(...): ...
 M.run = function(async_function, ...)
 	coroutine.resume(coroutine.create(async_function), ...)
 end
 
---- Schedules an async function for execution.
+---Schedules an async function for execution.
+---
+---When the function completes it will invoke `callback` on NeoVim's main
+---event-loop.
 ---@generic R
----@param async_function fun(...): R
----@param callback fun(success: boolean, result: R?)
+---@param async_function fun(...): R Async function to be scheduleded.
+---@param callback fun(success: boolean, result: R?) Callback to be executed upon completion.
+---@param ... any Additional arguments to be passed to `async_function`
 M.run_callback = function(async_function, callback, ...)
 	M.run(function(...)
 		local ok, result = pcall(async_function, ...)
-		callback(ok, result)
+		vim.schedule_wrap(callback)(ok, result)
 	end, ...)
 end
 
