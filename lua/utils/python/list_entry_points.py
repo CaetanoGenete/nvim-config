@@ -1,4 +1,4 @@
-from importlib import metadata
+from importlib.metadata import entry_points
 from itertools import chain
 import json
 import sys
@@ -14,13 +14,16 @@ class EntryPoint(TypedDict):
 if __name__ == "__main__":
     group = sys.argv[1] if len(sys.argv) > 1 else None
 
-    if sys.version_info >= (3, 10):
-        eps = metadata.entry_points(group=group) if group else metadata.entry_points()
-    else:
-        if group:
-            eps = metadata.entry_points().get(group, [])
+    if group:
+        if sys.version_info >= (3, 10):
+            eps = entry_points(group=group)
         else:
-            eps = chain(*metadata.entry_points().values())
+            eps = entry_points().get(group, [])
+    else:
+        if sys.version_info >= (3, 11):
+            eps = entry_points()
+        else:
+            eps = chain(*entry_points().values())
 
     result = [
         EntryPoint(

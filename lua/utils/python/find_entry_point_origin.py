@@ -8,4 +8,3 @@ if __name__ == "__main__":
         print(spec_or_none.origin, end="")
     else:
         raise ValueError("No origin available.")
-
