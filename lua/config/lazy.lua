@@ -24,7 +24,7 @@ require("lazy").setup({
 	spec = { { import = "plugins" } },
 	checker = { enabled = true },
 	ui = {
-		border = BORDER_STYLE,
+		border = vim.o.winborder,
 	},
 	rocks = {
 		enabled = false,

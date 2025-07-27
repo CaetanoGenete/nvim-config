@@ -49,7 +49,7 @@ local function debug_test_under_cursor()
 	end
 
 	local config = {
-		name = "pytest_function",
+		name = "pytest - " .. pytest_path,
 		type = "python",
 		request = "launch",
 		module = "pytest",
