@@ -46,7 +46,7 @@ return {
 		"igorlfs/nvim-dap-view",
 		"theHamsta/nvim-dap-virtual-text",
 	},
-	version = "0.10.0",
+	commit = "5dd4d50f2e6a2eaf9e57fad023d294ef371bda35",
 	cmd = "DapContinue",
 	---@type LazyKeysSpec[]
 	keys = {
@@ -94,6 +94,21 @@ return {
 		dap.listeners.on_config["my-config"] = function(config)
 			vim.notify("Launching debug session: " .. config.name)
 			return config
+		end
+
+		dap.listeners.after.event_exited["my-config"] = function(session, body)
+			local exit_code = body.exitCode
+			local status = "unknown exit code."
+			local level = vim.log.levels.WARN
+
+			if type(exit_code) == "number" then
+				status = "status code - " .. exit_code
+				if exit_code == 0 then
+					level = vim.log.levels.INFO
+				end
+			end
+
+			vim.notify("Process `" .. session.config.name .. "` exited with " .. status, level)
 		end
 	end,
 }

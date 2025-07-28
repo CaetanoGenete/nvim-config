@@ -2,7 +2,7 @@
 ---@type LazyPluginSpec
 return {
 	"igorlfs/nvim-dap-view",
-	commit = "fc0315087a871f9e74ef88559760b81dae81bc6d",
+	commit = "c7385808c7d6a4438f6eef50d539d7103146ba2b",
 	lazy = true,
 	---@module "dap-view"
 	---@type dapview.Config
@@ -28,14 +28,8 @@ return {
 		local dap_view = require("dap-view")
 		dap_view.setup(opts)
 
-		local open_listeners = {
-			dap.listeners.before.attach,
-			dap.listeners.before.launch,
-		}
-		for _, listener in ipairs(open_listeners) do
-			listener["dav-view-config"] = function()
-				dap_view.open()
-			end
+		dap.listeners.before.event_stopped["dav-view-config"] = function()
+			dap_view.open()
 		end
 	end,
 }
