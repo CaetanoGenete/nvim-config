@@ -17,12 +17,13 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- For `BORDER_STYLE`
-require("config.editor")
-
 require("lazy").setup({
 	spec = { { import = "plugins" } },
 	checker = { enabled = true },
+	dev = {
+		path = os.getenv("NVIM_DEV_PATH"),
+		fallback = true,
+	},
 	ui = {
 		border = vim.o.winborder,
 	},

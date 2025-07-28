@@ -1,6 +1,3 @@
--- For `BORDER_STYLE`
-require("config.editor")
-
 ---@module "lazy"
 ---@type LazyPluginSpec
 return {

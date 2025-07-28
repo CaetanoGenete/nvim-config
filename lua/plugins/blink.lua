@@ -1,6 +1,3 @@
--- For `BORDER_STYLE`
-require("config.editor")
-
 --- @module "lazy"
 --- @type LazyPluginSpec
 return {
@@ -24,16 +21,13 @@ return {
 			},
 		},
 		completion = {
-			-- menu = { border = BORDER_STYLE },
 			documentation = {
 				auto_show = true,
 				auto_show_delay_ms = 500,
-				-- window = { border = BORDER_STYLE },
 			},
 		},
 		signature = {
 			enabled = true,
-			-- window = { border = BORDER_STYLE },
 		},
 	},
 }
