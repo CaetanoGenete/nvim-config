@@ -8,7 +8,7 @@ return {
 		{
 			"<leader>le",
 			function()
-				require("python_tools.pickers").find_entry_points()
+				require("python_tools.pickers").find_entry_points({ use_importlib = false })
 			end,
 			desc = "Find python entry-points",
 		},

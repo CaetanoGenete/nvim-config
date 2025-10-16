@@ -44,6 +44,11 @@ return {
 			desc = "Live grep (root dir).",
 		},
 		{
+			"<leader>lb",
+			"<cmd>Telescope buffers<cr>",
+			desc = "List available buffers",
+		},
+		{
 			"<C-p>",
 			"<cmd>Telescope git_files<cr>",
 			desc = "Find files tracked by git.",
