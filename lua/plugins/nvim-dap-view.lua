@@ -2,7 +2,7 @@
 ---@type LazyPluginSpec
 return {
 	"igorlfs/nvim-dap-view",
-	commit = "668e9e6e214a3cc8fe811b5c8d8b2776dc79378d",
+	commit = "8f50aca151fb6f539ebc9e0ded9fa05b1f8cb69f",
 	lazy = true,
 	---@module "dap-view"
 	---@type dapview.Config

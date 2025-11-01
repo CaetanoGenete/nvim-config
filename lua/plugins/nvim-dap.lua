@@ -41,12 +41,12 @@ end
 ---@type LazyPluginSpec
 return {
 	"mfussenegger/nvim-dap",
+	commit = "5dd4d50f2e6a2eaf9e57fad023d294ef371bda35",
 	dependencies = {
 		-- Note: These are not strictly dependencies, but should be loaded with nvim-dap.
 		"igorlfs/nvim-dap-view",
 		"theHamsta/nvim-dap-virtual-text",
 	},
-	commit = "5dd4d50f2e6a2eaf9e57fad023d294ef371bda35",
 	cmd = "DapContinue",
 	---@type LazyKeysSpec[]
 	keys = {
