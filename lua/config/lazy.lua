@@ -21,14 +21,12 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
 	spec = { { import = "plugins" } },
 	checker = { enabled = true },
+	---@diagnostic disable-next-line: assign-type-mismatch
 	dev = {
 		path = os.getenv("NVIM_DEV_PATH"),
-		-- fallback = true,
+		fallback = true,
 	},
 	ui = {
 		border = vim.o.winborder,
-	},
-	rocks = {
-		enabled = false,
 	},
 })

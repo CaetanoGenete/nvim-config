@@ -62,6 +62,10 @@ local enrich_config = function(config, on_config)
 		config.console = "integratedTerminal"
 	end
 
+	if not config.cwd then
+		config.cwd = vim.fn.getcwd()
+	end
+
 	on_config(config)
 end
 

@@ -87,6 +87,7 @@ return {
 
 		-- Custom adapters
 		require("config.dap.python_adapter")
+		require("config.dap.nlua_adapter")
 
 		-- Lazy config loading
 		dap.providers.configs["lazy-dap-configs"] = load_config

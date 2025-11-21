@@ -2,10 +2,11 @@
 ---@type LazyPluginSpec
 return {
 	"nvim-treesitter/nvim-treesitter",
-	version = "v0.9.3",
+	version = "v0.10.0",
+	branch = "main",
 	event = "BufRead",
-	name = "treesitter",
 	build = ":TSUpdate",
+	main = "nvim-treesitter.configs",
 	--- @module "nvim-treesitter"
 	--- @type TSConfig
 	opts = {
@@ -20,7 +21,4 @@ return {
 		},
 		indent = { enable = true },
 	},
-	config = function(_, opts)
-		require("nvim-treesitter.configs").setup(opts)
-	end,
 }

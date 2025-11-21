@@ -2,7 +2,7 @@
 ---@type LazyPluginSpec
 return {
 	"nvim-telescope/telescope.nvim",
-	tag = "0.1.8",
+	tag = "v0.1.9",
 	dependencies = {
 		"nvim-lua/plenary.nvim",
 	},
@@ -19,6 +19,11 @@ return {
 						vim.fn.setreg('"0', result)
 					end,
 				},
+			},
+		},
+		pickers = {
+			find_files = {
+				hidden = true,
 			},
 		},
 	},
