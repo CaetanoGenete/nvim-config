@@ -24,6 +24,11 @@ local function adebug_entrypoint(dap_coro)
 		coroutine.resume(dap_coro, { ep.name, ep.group })
 	end
 
+	if #eps == 1 then
+		on_selected(eps[1])
+		return
+	end
+
 	vim.ui.select(eps, {
 		prompt = "Choose an entry point:",
 		---@param ep EntryPointDef
