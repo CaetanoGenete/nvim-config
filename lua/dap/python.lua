@@ -38,6 +38,7 @@ local function adebug_entrypoint(dap_coro)
 	}, on_selected)
 end
 
+---@type dap.Configuration[]
 return {
 	{
 		type = "python",

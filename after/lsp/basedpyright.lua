@@ -1,4 +1,4 @@
-if require("utils.lsp").lsp_enabled("ruff") then
+if vim.lsp.is_enabled("ruff") then
 	require("utils.log").fmt_info("`ruff` detected, disabling pyright analysis.")
 
 	return {

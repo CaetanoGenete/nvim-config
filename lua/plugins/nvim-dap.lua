@@ -13,7 +13,7 @@ local function load_config(bufnr)
 	local ft = vim.bo[bufnr].filetype
 	local config_paths = { "dap.", "user.dap." }
 
-	--- @type dap.Configuration[]
+	---@type dap.Configuration[]
 	local configurations = {}
 
 	for _, config_path in ipairs(config_paths) do
@@ -109,7 +109,7 @@ return {
 				end
 			end
 
-			vim.notify("Process `" .. session.config.name .. "` exited with " .. status, level)
+			vim.notify(("Process `%s` exited with %s"):format(session.config.name, status), level)
 		end
 	end,
 }
