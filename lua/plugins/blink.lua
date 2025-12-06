@@ -2,7 +2,7 @@
 --- @type LazyPluginSpec
 return {
 	"saghen/blink.cmp",
-	version = "v1.7.0",
+	version = "v1.8.0",
 	event = "InsertEnter",
 	--- @module 'blink.cmp'
 	--- @type blink.cmp.Config

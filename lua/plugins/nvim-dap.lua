@@ -1,3 +1,7 @@
+---@require "dap"
+---@type dap.Configuration?
+local last_config = nil
+
 ---Loads DAP configuration for the given buffer (with id `bufnr`).
 ---
 ---Function will look for files in the following directories:
@@ -45,24 +49,28 @@ return {
 	dependencies = {
 		-- Note: These are not strictly dependencies, but should be loaded with nvim-dap.
 		"igorlfs/nvim-dap-view",
-		"theHamsta/nvim-dap-virtual-text",
 	},
 	cmd = "DapContinue",
 	---@type LazyKeysSpec[]
 	keys = {
 		{
 			"<leader>db",
+			desc = "Toggle breakpoint at cursor.",
 			function()
 				require("dap").toggle_breakpoint()
 			end,
-			desc = "Toggle breakpoint at cursor.",
 		},
 		{
 			"<leader>dl",
-			function()
-				require("dap").run_last()
-			end,
 			desc = "Run using previously executing config.",
+			function()
+				if last_config == nil then
+					vim.notify("No previous debug session!", vim.log.levels.WARN)
+					return
+				end
+
+				require("dap").run(last_config)
+			end,
 		},
 	},
 	config = function()
@@ -94,6 +102,7 @@ return {
 
 		dap.listeners.on_config["my-config"] = function(config)
 			vim.notify("Launching debug session: " .. config.name)
+			last_config = config
 			return config
 		end
 

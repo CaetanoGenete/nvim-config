@@ -4,6 +4,7 @@ return {
 	"igorlfs/nvim-dap-view",
 	commit = "8f50aca151fb6f539ebc9e0ded9fa05b1f8cb69f",
 	lazy = true,
+	enabled = true,
 	---@module "dap-view"
 	---@type dapview.Config
 	opts = {

@@ -10,8 +10,14 @@ local function adebug_entrypoint(dap_coro)
 		require("python_tools.meta.entry_points").aentry_points({ group = "console_scripts" })
 
 	if eps == nil then
-		vim.notify(("Failed to find entry_points: %s"):format(err), vim.log.levels.ERROR)
 		dap_abort(dap_coro)
+		vim.notify(("Failed to find entry_points: %s"):format(err), vim.log.levels.ERROR)
+		return
+	end
+
+	if #eps == 0 then
+		dap_abort(dap_coro)
+		vim.notify("Could not find any entry_points!", vim.log.levels.WARN)
 		return
 	end
 

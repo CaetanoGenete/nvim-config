@@ -3,13 +3,14 @@
 return {
 	"CaetanoGenete/python-tools.nvim",
 	dependencies = { "nvim-treesitter/nvim-treesitter" },
+	build = "make compile",
 	submodules = false,
 	dev = true,
 	keys = {
 		{
 			"<leader>le",
 			function()
-				require("python_tools.pickers").find_entry_points({ use_importlib = false })
+				require("python_tools.pickers").find_entry_points({ use_importlib = true })
 			end,
 			desc = "Find python entry-points",
 		},
