@@ -45,7 +45,7 @@ end
 ---@type LazyPluginSpec
 return {
 	"mfussenegger/nvim-dap",
-	commit = "5dd4d50f2e6a2eaf9e57fad023d294ef371bda35",
+	commit = "5860c7c501eb428d3137ee22c522828d20cca0b3",
 	dependencies = {
 		-- Note: These are not strictly dependencies, but should be loaded with nvim-dap.
 		"igorlfs/nvim-dap-view",
