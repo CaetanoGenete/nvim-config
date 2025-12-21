@@ -58,10 +58,11 @@ local function debug_test_under_cursor()
 	require("dap").run(config)
 end
 
-vim.api.nvim_buf_create_user_command(0, "DebugTest", function()
-	debug_test_under_cursor()
-end, { desc = "Execute function under cursor using `pytest`, using a configured debugger." })
+vim.api.nvim_buf_create_user_command(
+	0,
+	"DebugTest",
+	debug_test_under_cursor,
+	{ desc = "Execute function under cursor using `pytest`, using a configured debugger." }
+)
 
-vim.keymap.set("n", "<leader>dt", function()
-	debug_test_under_cursor()
-end, { buffer = 0 })
+vim.keymap.set("n", "<leader>dt", debug_test_under_cursor, { buffer = 0 })
