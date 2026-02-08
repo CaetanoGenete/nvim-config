@@ -52,7 +52,7 @@ return {
 			end
 
 			return {
-				timeout_ms = 2000,
+				timeout_ms = 10000,
 				lsp_format = "fallback",
 				async = true,
 			}
