@@ -1,0 +1,12 @@
+[global]
+exclude = ["node_modules", ".git"]
+enable = ["ALL"]
+disable = ["MD063"]
+
+
+# Set line length limit
+line-length = 80
+
+[MD013]  # Line length
+line_length = 80
+code_blocks = false

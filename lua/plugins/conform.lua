@@ -13,7 +13,7 @@ end, {
 ---@type LazyPluginSpec
 return {
 	"stevearc/conform.nvim",
-	version = "v9.0.0",
+	version = "v9.1.0",
 	event = { "BufWritePre" },
 	cmd = { "ConformInfo" },
 	keys = {
@@ -22,7 +22,6 @@ return {
 			function()
 				require("conform").format({ async = true })
 			end,
-			mode = "",
 			desc = "Format buffer",
 		},
 	},
@@ -53,7 +52,6 @@ return {
 
 			return {
 				timeout_ms = 10000,
-				lsp_format = "fallback",
 				async = true,
 			}
 		end,

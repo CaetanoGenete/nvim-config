@@ -2,10 +2,8 @@
 ---@type LazyPluginSpec
 return {
 	"CaetanoGenete/python-tools.nvim",
-	dependencies = { "nvim-treesitter/nvim-treesitter" },
-	build = "make compile",
-	submodules = false,
 	dev = true,
+	config = true,
 	keys = {
 		{
 			"<leader>le",
@@ -15,5 +13,4 @@ return {
 			desc = "Find python entry-points",
 		},
 	},
-	config = true,
 }
