@@ -7,7 +7,10 @@ return {
 	--- @module 'blink.cmp'
 	--- @type blink.cmp.Config
 	opts = {
-		keymap = { preset = "enter" },
+		keymap = {
+			preset = "default",
+			["<C-s>"] = {"select_and_accept", "fallback"}
+		},
 		fuzzy = { implementation = "prefer_rust" },
 		snippets = { preset = "luasnip" },
 		sources = {
