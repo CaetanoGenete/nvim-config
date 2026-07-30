@@ -64,5 +64,4 @@ vim.api.nvim_buf_create_user_command(
 	debug_test_under_cursor,
 	{ desc = "Execute function under cursor using `pytest`, using a configured debugger." }
 )
-
 vim.keymap.set("n", "<leader>dt", debug_test_under_cursor, { buffer = 0 })

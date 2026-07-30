@@ -9,6 +9,10 @@ vim.o.signcolumn = "yes:1"
 vim.wo.relativenumber = true
 vim.o.winborder = "rounded"
 
+--- Formatting
+
+vim.o.fo = "cqj"
+
 --- Code folding
 
 vim.opt.foldmethod = "expr"
