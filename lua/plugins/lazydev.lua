@@ -2,7 +2,7 @@
 ---@type LazyPluginSpec
 return {
 	"folke/lazydev.nvim",
-	version = "v1.10.0",
+	commit = "ff2cbcba459b637ec3fd165a2be59b7bbaeedf0d",
 	ft = "lua",
 	opts = {
 		library = {

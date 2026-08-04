@@ -1,8 +1,8 @@
 ---@module "lazy"
 ---@type LazyPluginSpec
 return {
-	"williamboman/mason.nvim",
-	version = "v2.1.0",
-	cmd = "Mason",
-	config = true,
+	"mason-org/mason.nvim",
+	version = "v2.3.1",
+	event = "VeryLazy",
+	config = true
 }

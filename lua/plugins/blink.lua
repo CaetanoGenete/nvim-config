@@ -2,14 +2,14 @@
 --- @type LazyPluginSpec
 return {
 	"saghen/blink.cmp",
-	version = "v1.8.0",
+	version = "v1.10.2",
 	event = "InsertEnter",
 	--- @module 'blink.cmp'
 	--- @type blink.cmp.Config
 	opts = {
 		keymap = {
 			preset = "default",
-			["<C-s>"] = {"select_and_accept", "fallback"}
+			["<C-s>"] = { "select_and_accept", "fallback" }
 		},
 		fuzzy = { implementation = "prefer_rust" },
 		snippets = { preset = "luasnip" },

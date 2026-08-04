@@ -25,6 +25,9 @@ return {
 				prepend_args = { "--prose-wrap", "always" },
 			},
 		},
+		default_format_opts = {
+			lsp_format = "fallback",
+		},
 		format_after_save = {
 			timeout_ms = 10000,
 			async = true,
