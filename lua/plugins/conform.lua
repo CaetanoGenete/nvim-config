@@ -17,16 +17,16 @@ return {
 	---@module "conform.types"
 	---@type conform.setupOpts
 	opts = {
+		default_format_opts = {
+			lsp_format = "fallback"
+		},
 		formatters_by_ft = {
-			python = { "ruff" },
+			python = { "ruff_format", lsp_format = "fallback" },
 		},
 		formatters = {
 			prettier = {
 				prepend_args = { "--prose-wrap", "always" },
 			},
-		},
-		default_format_opts = {
-			lsp_format = "fallback",
 		},
 		format_after_save = {
 			timeout_ms = 10000,
