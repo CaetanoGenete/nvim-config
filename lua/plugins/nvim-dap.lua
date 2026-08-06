@@ -102,8 +102,11 @@ return {
 
 		dap.listeners.on_config["my-config"] = function(config)
 			vim.notify("Launching debug session: " .. config.name)
-			last_config = config
 			return config
+		end
+
+		dap.listeners.after.event_initialized["my-config"] = function(session)
+			last_config = session.config
 		end
 
 		dap.listeners.after.event_exited["my-config"] = function(session, body)
