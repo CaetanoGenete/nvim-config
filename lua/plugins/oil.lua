@@ -2,7 +2,7 @@
 ---@type LazyPluginSpec
 return {
 	"stevearc/oil.nvim",
-	version = "v2.15.0",
+	version = "v2.16.0",
 	cmd = "Oil",
 	dependencies = { "nvim-tree/nvim-web-devicons" },
 	---@module 'oil'
